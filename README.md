@@ -8,8 +8,11 @@ Automatic BASH completion for Symfony Console Component based applications. Comp
 
 ## Use
 
-If you don't need any custom completion behaviour, just add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method.
+If you don't need any custom completion behaviour, just add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method. Once you've done this, you can run (or add to your bash profile):
 
+    eval `[your-application] _completion --genhook`
+
+This will generate and run a small bash script which creates a small BASH function and registers completion for your appliction name. Completion is then handled by running your application as `[your-application] _completion`.
 
 ### Custom completion
 
