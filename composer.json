@@ -1,0 +1,22 @@
+{
+    "name": "stecman/symfony-console-completion",
+    "description": "Automatic BASH completion for the Symfony Console Component.",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Stephen Holdaway",
+            "email": "stephen@stecman.co.nz"
+        }
+    ],
+    "require": {
+        "symfony/console": "~2.2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7"
+    },
+    "autoload": {
+        "psr-0": {
+            "Stecman\\Component": "src/"
+        }
+    }
+}
