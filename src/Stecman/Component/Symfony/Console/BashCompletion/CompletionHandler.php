@@ -359,7 +359,15 @@ class CompletionHandler {
         return <<<"END"
 function $funcName {
     export COMP_CWORD COMP_KEY COMP_LINE COMP_POINT COMP_WORDBREAKS;
-    COMPREPLY=(`compgen -W "$($command _completion)"`);
+
+    RESULT=`$command _completion`;
+    STATUS=$?;
+    if [ \$STATUS -ne 0 ]; then
+        echo \$RESULT;
+        exit $?;
+    fi;
+
+    COMPREPLY=(`compgen -W "\$RESULT"`);
 };
 complete -F $funcName $programName;
 END;
