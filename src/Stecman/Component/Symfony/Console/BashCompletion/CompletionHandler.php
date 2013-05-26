@@ -6,7 +6,6 @@ use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 
 class CompletionHandler {
@@ -344,10 +343,11 @@ class CompletionHandler {
     }
 
     /**
-     * Return the BASH script necessary to use bash completion with this handler
+     * Return the BASH script necessary to use bash completion with this addHandler
+     * @param string $programName
      * @return string
      */
-    public function generateBashCompletionHook()
+    public function generateBashCompletionHook($programName)
     {
         global $argv;
         $command = $argv[0];
@@ -357,7 +357,7 @@ function _beamcomplete {
     export COMP_CWORD COMP_KEY COMP_LINE COMP_POINT COMP_WORDBREAKS;
     COMPREPLY=(`compgen -W "$($command _completion)"`);
 };
-complete -F _beamcomplete beam;
+complete -F _beamcomplete $programName;
 END;
     }
 

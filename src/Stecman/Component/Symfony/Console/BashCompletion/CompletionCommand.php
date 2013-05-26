@@ -21,14 +21,14 @@ class CompletionCommand extends SymfonyCommand {
             ->setName('_completion')
             ->setDescription('BASH completion hook.')
             ->setHelp(<<<END
-To enable BASH completion, run: <comment>eval `beam completion --genhook`</comment>
+To enable BASH completion, run: <comment>eval `beam completion --genhook="app-name"`</comment>
 END
             )
             ->addOption(
                 'genhook',
-                null,
-                InputOption::VALUE_NONE,
-                'Generate BASH script to enable completion using this command'
+                'g',
+                InputOption::VALUE_REQUIRED,
+                'Generate BASH script to use completion with this application. <comment>Requires program name as value.</comment>'
             );
     }
 
@@ -37,9 +37,8 @@ END
         $this->handler = new CompletionHandler( $this->getApplication() );
         $handler = $this->handler;
 
-        if ($input->getOption('genhook')) {
-            $bash = $handler->generateBashCompletionHook();
-            $output->write($bash, true);
+        if ($programName = $input->getOption('genhook')) {
+            $output->write( $handler->generateBashCompletionHook($programName), true );
         } else {
             $handler->configureFromEnvironment();
             $output->write($this->runCompletion(), true);
