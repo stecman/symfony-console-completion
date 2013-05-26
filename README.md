@@ -1,21 +1,32 @@
 # Symfony Console completion
 
-Automatic BASH completion for Symfony Console Component based applications. Completes commands and options by default, and allows for custom option/argument completion handlers to be set.
+This package provides automatic BASH completion for Symfony Console Component based applications. With minimal configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
 
-## Use
+## Basic use
 
-If you don't need any custom completion behaviour, just add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method. Once you've done this, you can run this line of BASH to enable completion:
+If you don't need any custom completion behaviour:
 
-    eval `[your-application] _completion -g [program-name]`
+1. Install `stecman/symfony-console-completion` through composer
+2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()`:
+```
+    protected function getDefaultCommands()
+    {
+       ...
+        $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
+       ...
+    }
+```
 
-Where `[program-name]` is the name you want to register bash completion for. This will be the same as `[your-application]` if your application is in your PATH.
+3. Run `eval $([your-application] _completion -g [program-name])` in a terminal, where `[program-name]` is the name you want to register bash completion for (this will be the same as `[your-application]` if your application is on your PATH).
+4. Add the above command to your bash profile if you want the completion to apply automatically for new terminal sessions.
 
-This will generate and run a small bash script which creates a small wrapper function and registers completion for your appliction name. Completion is then handled by running your application as `[your-application] _completion`.
+The command `_completion -g [program-name]` (`-g` being a shortcut for `--genhook`) generates a few lines of bash that, when run, register your application as a completion handler for `[program-name]`. Completion is handled by running the completion command on your application with no arguments: `[your-application] _completion`.
 
-### Custom completion
+## Custom completion
 
-Custom completion behaviour for arguments and option values can be added by sub-classing `CompletionCommand`:
+Custom completion behaviour for argument and option values can be added by sub-classing `CompletionCommand`.
 
+The following examples are for an application with this signature: `myapp (walk|run) [-w|--weather=""] direction`
 
     class MyCompletionCommand extends CompletionCommand{
 
@@ -32,8 +43,6 @@ Custom completion behaviour for arguments and option values can be added by sub-
         }
 
     }
-
-Imagine you have an application with this signature: `myapp (walk|run) [-w|--weather=""] direction`
 
 
 **Command-specific argument completion with an array:**
@@ -52,7 +61,7 @@ but not this:
     myapp run [tab]
 
 
-**Non-command-specifc (global) argument completion with a function**
+**Non-command-specific (global) argument completion with a function**
 
     Completion::makeGlobalHandler(
         'direction', Completion::TYPE_ARGUMENT,
@@ -75,7 +84,7 @@ This will complete for both commands:
 
 Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type.
 
-**Note this functionality is not yet complete:** long-form options (eg `--hello="world"`) do not support completion yet. Only option shortcut completion works (eg. `-h [tab]`).
+**Note this functionality is not yet complete:** long-form options (eg `--hello="world"`) do not support completion yet. Option completion is only supported for shortcuts (eg. `-h [tab]`).
 
     Completion::makeGlobalHandler(
         'weather', Completion::TYPE_OPTION,
@@ -88,4 +97,4 @@ Option completion is only supported for shortcuts currently:
 
 ## Notes
 
-Option shorcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
+* Option shorcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
