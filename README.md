@@ -2,24 +2,22 @@
 
 Automatic BASH completion for Symfony Console Component based applications. Completes commands and options by default, and allows for custom option/argument completion handlers to be set.
 
-**Note that this is not entirely finished:**
-
-* Long-form options do not support completion yet (only shortcuts do)
-
 ## Use
 
-If you don't need any custom completion behaviour, just add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method. Once you've done this, you can run (or add to your bash profile):
+If you don't need any custom completion behaviour, just add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method. Once you've done this, you can run this to enable completion:
 
-    eval `[your-application] _completion --genhook`
+    eval `[your-application] _completion -g [program-name]`
+
+Where `[program-name]` is the name you want to register bash completion for.
 
 This will generate and run a small bash script which creates a small BASH function and registers completion for your appliction name. Completion is then handled by running your application as `[your-application] _completion`.
 
 ### Custom completion
 
-Custom completion behaviour for arguments and option values can be added by sub-classing `CompletionCommand` (this will change very soon):
+Custom completion behaviour for arguments and option values can be added by sub-classing `CompletionCommand`:
 
 
-    class BeamCompletionCommand extends CompletionCommand{
+    class MyCompletionCommand extends CompletionCommand{
 
         protected function runCompletion()
         {
@@ -76,6 +74,8 @@ This will complete for both commands:
 **Option completion**
 
 Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type.
+
+**Note this functionality is not yet complete:** long-form options (eg `--hello="world"`) do not support completion yet. Only option shortcut completion works (eg. `-h [tab]`).
 
     Completion::makeGlobalHandler(
         'weather', Completion::TYPE_OPTION,
