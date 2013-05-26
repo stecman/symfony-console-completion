@@ -1,6 +1,7 @@
 {
     "name": "stecman/symfony-console-completion",
     "description": "Automatic BASH completion for the Symfony Console Component.",
+	"license": "MIT",
     "minimum-stability": "dev",
     "authors": [
         {
