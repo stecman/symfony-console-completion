@@ -190,7 +190,10 @@ class CompletionHandler {
             $names = array();
 
             foreach ($commands as $cmd) {
-                $names[] = $cmd->getName();
+                $name = $cmd->getName();
+                if ($name != '_completion') {
+                    $names[] = $name;
+                }
             }
 
             return $names;
