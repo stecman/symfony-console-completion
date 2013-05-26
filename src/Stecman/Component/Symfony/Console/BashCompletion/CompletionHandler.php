@@ -354,13 +354,14 @@ class CompletionHandler {
     {
         global $argv;
         $command = $argv[0];
+        $funcName = "_{$programName}complete";
 
         return <<<"END"
-function _beamcomplete {
+function $funcName {
     export COMP_CWORD COMP_KEY COMP_LINE COMP_POINT COMP_WORDBREAKS;
     COMPREPLY=(`compgen -W "$($command _completion)"`);
 };
-complete -F _beamcomplete $programName;
+complete -F $funcName $programName;
 END;
     }
 

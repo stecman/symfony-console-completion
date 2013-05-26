@@ -8,9 +8,9 @@ If you don't need any custom completion behaviour, just add an instance of `Comp
 
     eval `[your-application] _completion -g [program-name]`
 
-Where `[program-name]` is the name you want to register bash completion for.
+Where `[program-name]` is the name you want to register bash completion for. This will be the same as `[your-application]` if your application is on your PATH.
 
-This will generate and run a small bash script which creates a small BASH function and registers completion for your appliction name. Completion is then handled by running your application as `[your-application] _completion`.
+This will generate and run a small bash script which creates a small wrapper function and registers completion for your appliction name. Completion is then handled by running your application as `[your-application] _completion`.
 
 ### Custom completion
 
