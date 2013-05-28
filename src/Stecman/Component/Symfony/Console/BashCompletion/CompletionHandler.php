@@ -70,7 +70,7 @@ class CompletionHandler {
         $this->commandLine = getenv('COMP_LINE');
 
         if ($this->commandLine === false) {
-            throw new \RuntimeException('Failed to configure from environment; Environment var COMP_LINE not set');
+            throw new \RuntimeException('Failed to configure from environment; Environment var COMP_LINE not set.');
         }
 
         $this->wordIndex = intval(getenv('COMP_CWORD'));
@@ -154,6 +154,9 @@ class CompletionHandler {
      */
     protected function completeForOptionValues()
     {
+
+        fwrite(STDERR, "\n".print_r($this->words, true)."\n\nIndex: $this->wordIndex\n\n");
+
 //        if ($this->command && $this->wordIndex > 1) {
 //            $left = $this->words[$this->wordIndex-1];
 //
@@ -330,6 +333,7 @@ class CompletionHandler {
     {
         $argIndex = 0;
         $wordNum = -1;
+        $prevWord = null;
         $argPositions = array();
 
         $words = $this->words;
@@ -349,6 +353,7 @@ class CompletionHandler {
                 $argPositions[$argsArray[$argIndex]] = $wordNum;
             }
             $argIndex++;
+            $prevWord = $word;
         }
 
         return $argPositions;
@@ -363,7 +368,7 @@ class CompletionHandler {
     protected function filterResults($array)
     {
         $curWord = $this->words[$this->wordIndex];
-        return implode(' ',
+        return implode("\n",
             array_filter($array, function($val) use ($curWord) {
                 return fnmatch($curWord.'*', $val);
             })
@@ -379,7 +384,16 @@ class CompletionHandler {
     {
         global $argv;
         $command = $argv[0];
-        $funcName = "_{$programName}complete";
+
+        if (!$programName) {
+            $programName = $command;
+            $funcName = sprintf('_%s_%s_complete',
+                basename($programName),
+                substr(md5($command), 0, 12)
+            );
+        } else {
+            $funcName = "_{$programName}complete";
+        }
 
         return <<<"END"
 function $funcName {
