@@ -380,7 +380,7 @@ class CompletionHandler {
      * @param string $programName
      * @return string
      */
-    public function generateBashCompletionHook($programName)
+    public function generateBashCompletionHook($programName = false)
     {
         global $argv;
         $command = $argv[0];
