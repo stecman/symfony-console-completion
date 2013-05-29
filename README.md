@@ -84,18 +84,17 @@ This will complete for both commands:
 
 **Option completion**
 
-Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type.
-
-**Note this functionality is not yet complete:** long-form options (eg `--hello="world"`) do not support completion yet. Option completion is only supported for shortcuts (eg. `-h [tab]`).
+Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type..
 
     Completion::makeGlobalHandler(
         'weather', Completion::TYPE_OPTION,
         array('raining', 'sunny', 'everything is on fire!')
     )
 
-Option completion is only supported for shortcuts currently:
+Option completion is only supported for non-quoted values currently:
 
     myapp walk -w [tab]
+    myapp walk --weather [tab]
 
 ## Notes
 
