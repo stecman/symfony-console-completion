@@ -155,7 +155,7 @@ class CompletionHandler {
     protected function completeForOptionValues()
     {
 
-        fwrite(STDERR, "\n".print_r($this->words, true)."\n\nIndex: $this->wordIndex\n\n");
+//        fwrite(STDERR, "\n".print_r($this->words, true)."\n\nIndex: $this->wordIndex\n\n");
 
 //        if ($this->command && $this->wordIndex > 1) {
 //            $left = $this->words[$this->wordIndex-1];
@@ -253,13 +253,12 @@ class CompletionHandler {
     }
 
     /**
-     * @param BaseCommand $cmd
      * @return array
      */
-    protected function formatOptions(BaseCommand $cmd)
+    protected function formatOptions()
     {
         $options = array();
-        foreach ($cmd->getDefinition()->getOptions() as $opt) {
+        foreach ($this->getAllOptions() as $opt) {
             $string = '--'.$opt->getName();
 
             if ($opt->isValueRequired()) {
@@ -341,19 +340,32 @@ class CompletionHandler {
 
         $argsArray = array_keys($arguments);
 
+        $optionsWithArgs = array();
+
+        foreach ($this->getAllOptions() as $option) {
+            if ($option->isValueRequired() && $option->getShortcut()) {
+                $optionsWithArgs[] = '-'.$option->getShortcut();
+            }
+        }
+
         foreach ($this->words as $word) {
             $wordNum++;
 
-            // Skip program name, command name and options
-            if ($wordNum < 2 || ($word && '-' === $word[0])) {
+            // Skip program name, command name, options, and option values
+            if ($wordNum < 2
+                || ($word && '-' === $word[0])
+                || in_array($prevWord, $optionsWithArgs))
+            {
+                $prevWord = $word;
                 continue;
+            } else {
+                $prevWord = $word;
             }
 
             if (isset($argsArray[$argIndex])) {
                 $argPositions[$argsArray[$argIndex]] = $wordNum;
             }
             $argIndex++;
-            $prevWord = $word;
         }
 
         return $argPositions;
@@ -410,6 +422,13 @@ function $funcName {
 };
 complete -F $funcName $programName;
 END;
+    }
+
+    protected function getAllOptions(){
+        return array_merge(
+            $this->command->getDefinition()->getOptions(),
+            $this->application->getDefinition()->getOptions()
+        );
     }
 
     /**
