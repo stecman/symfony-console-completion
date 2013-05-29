@@ -17,10 +17,12 @@ If you don't need any custom completion behaviour:
     }
 ```
 
-3. Run `eval $([your-application] _completion -g [program-name])` in a terminal, where `[program-name]` is the name you want to register bash completion for (this will be the same as `[your-application]` if your application is on your PATH).
+3. Run `eval $([program] _completion -g)` in a terminal.
 4. Add the above command to your bash profile if you want the completion to apply automatically for new terminal sessions.
 
-The command `_completion -g [program-name]` (`-g` being a shortcut for `--genhook`) generates a few lines of bash that, when run, register your application as a completion handler for `[program-name]`. Completion is handled by running the completion command on your application with no arguments: `[your-application] _completion`.
+The `-g` option generates a few lines of bash that, when run, register your application as a completion handler for your program name. Completion is handled by running the completion command on your application with no arguments: `[program] _completion`.
+
+If you need to use completion with an alias, specify the program name to complete for with the `-p` option: `_completion -g -p [alias-name]`.
 
 ## Custom completion
 
