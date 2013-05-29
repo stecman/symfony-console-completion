@@ -129,8 +129,15 @@ class CompletionHandler {
      */
     protected function completeForOptions()
     {
-        if ($this->command && strpos($this->words[$this->wordIndex], '-') === 0) {
-            return $this->formatOptions($this->command);
+        $word = $this->words[$this->wordIndex];
+        if ($this->command && strpos($word, '-') === 0) {
+            $options = array();
+
+            foreach ($this->getAllOptions() as $opt) {
+                $options[] = '--'.$opt->getName();
+            }
+
+            return $options;
         }
     }
 
@@ -146,36 +153,6 @@ class CompletionHandler {
                 return array($word);
             }
         }
-    }
-
-    /**
-     * Complete long-form option values
-     * @return array
-     */
-    protected function completeForOptionValues()
-    {
-
-//        fwrite(STDERR, "\n".print_r($this->words, true)."\n\nIndex: $this->wordIndex\n\n");
-
-//        if ($this->command && $this->wordIndex > 1) {
-//            $left = $this->words[$this->wordIndex-1];
-//
-//            // Complete short options
-//            if (strpos($left, '--') === 0) {
-//
-//                $name = substr($left, 2);
-//                $def = $this->command->getDefinition();
-//
-//                if (!$def->hasOption($name)) {
-//                    return false;
-//                }
-//
-//                $opt = $def->getOption($name);
-//                if ($opt->isValueRequired() || $opt->isValueOptional()) {
-//                    return $this->completeOption($opt);
-//                }
-//            }
-//        }
     }
 
     /**
@@ -197,6 +174,33 @@ class CompletionHandler {
                 }
 
                 $opt = $def->getOptionForShortcut($shortcut);
+                if ($opt->isValueRequired() || $opt->isValueOptional()) {
+                    return $this->completeOption($opt);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function completeForOptionValues()
+    {
+        if ($this->command && $this->wordIndex > 1) {
+            $left = $this->words[$this->wordIndex-1];
+
+            if (strpos($left, '--') === 0) {
+
+                $name = substr($left, 2);
+                $def = $this->command->getDefinition();
+
+                if (!$def->hasOption($name)) {
+                    return false;
+                }
+
+                $opt = $def->getOption($name);
                 if ($opt->isValueRequired() || $opt->isValueOptional()) {
                     return $this->completeOption($opt);
                 }
@@ -250,28 +254,6 @@ class CompletionHandler {
         $words = array_filter($words);
 
         return new ArrayInput($words);
-    }
-
-    /**
-     * @return array
-     */
-    protected function formatOptions()
-    {
-        $options = array();
-        foreach ($this->getAllOptions() as $opt) {
-            $string = '--'.$opt->getName();
-
-            if ($opt->isValueRequired()) {
-                $options[] = $string.'=\\"\\"';
-            } else if ($opt->isValueOptional()) {
-                $options[] = $string;
-                $options[] = $string.'=\\"\\"';
-            } else {
-                $options[] = $string;
-            }
-
-        }
-        return $options;
     }
 
     /**
