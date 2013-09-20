@@ -427,6 +427,14 @@ END;
     }
 
     /**
+     * @return string
+     */
+    public function getWordIndex()
+    {
+        return $this->wordIndex;
+    }
+
+    /**
      * @param string $wordIndex
      */
     public function setWordIndex($wordIndex)
@@ -437,9 +445,9 @@ END;
     /**
      * @return string
      */
-    public function getCommandLine()
+    public function getCharIndex()
     {
-        return $this->commandLine;
+        return $this->charIndex;
     }
 
     /**
@@ -448,6 +456,14 @@ END;
     public function setCommandLine($commandLine)
     {
         $this->commandLine = $commandLine;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCommandLine()
+    {
+        return $this->commandLine;
     }
 
     /**
