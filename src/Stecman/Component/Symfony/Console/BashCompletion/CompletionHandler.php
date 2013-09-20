@@ -216,15 +216,12 @@ class CompletionHandler {
      */
     protected function completeForCommandName()
     {
-        if (!$this->command) {
+        if (!$this->command || (count($this->words) == 2 && $this->wordIndex == 1)) {
             $commands = $this->application->all();
-            $names = array();
+            $names = array_keys($commands);
 
-            foreach ($commands as $cmd) {
-                $name = $cmd->getName();
-                if ($name != '_completion') {
-                    $names[] = $name;
-                }
+            if ($key = array_search('_completion', $names)) {
+                unset($names[$key]);
             }
 
             return $names;
