@@ -397,7 +397,13 @@ function $funcName {
         exit $?;
     fi;
 
-    COMPREPLY=(`compgen -W "\$RESULT"`);
+    local cur;
+    _get_comp_words_by_ref -n : cur;
+
+    COMPREPLY=(`compgen -W "\$RESULT" -- \$cur`);
+
+    __ltrim_colon_completions "\$cur";
+
 };
 complete -F $funcName $programName;
 END;
