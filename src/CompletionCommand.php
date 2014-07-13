@@ -32,16 +32,16 @@ Or for an alias:
 END
             )
             ->addOption(
-                'genhook',
+                'generate-hook',
                 'g',
                 InputOption::VALUE_NONE,
-                'Generate BASH script to use completion with this application.'
+                'Generate BASH code that sets up completion for this application.'
             )
             ->addOption(
                 'program',
                 'p',
                 InputOption::VALUE_REQUIRED,
-                'Program name to add completion for.'
+                "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
             );
     }
 
@@ -50,7 +50,7 @@ END
         $this->handler = new CompletionHandler( $this->getApplication() );
         $handler = $this->handler;
 
-        if ( $input->getOption('genhook') ) {
+        if ( $input->getOption('generate-hook') ) {
             $output->write( $handler->generateBashCompletionHook($input->getOption('program')), true );
         } else {
             $handler->setContext(new EnvironmentCompletionContext());

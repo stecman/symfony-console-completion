@@ -1,13 +1,17 @@
-# Symfony Console completion
+# BASH completion for Symfony Console applications
 
-This package provides automatic BASH completion for Symfony Console Component based applications. With minimal configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
+This package provides automatic BASH completion for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
 
-## Basic use
+Example of zero-config use with Composer:
 
-If you don't need any custom completion behaviour:
+![Composer BASH completion](https://i.imgur.com/MoDWkby.gif)
+
+## Zero-config use
+
+If you don't need any custom completion behaviour, all you need to do is add the completion command to your application's available commands:
 
 1. Install `stecman/symfony-console-completion` through composer
-2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()`:
+2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
 ```
     protected function getDefaultCommands()
     {
@@ -17,12 +21,15 @@ If you don't need any custom completion behaviour:
     }
 ```
 
-3. Run `eval $([program] _completion -g)` in a terminal.
-4. Add the above command to your bash profile if you want the completion to apply automatically for new terminal sessions.
+3. Run `eval $([program] _completion --generate-hook)` in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'). By default this registers completion for the absolute path to you application; you can specify a command name to complete for instead using the `-p` option.
+4. Add the command from step 3 to your bash profile if you want the completion to apply automatically for all new terminal sessions.
 
-The `-g` option generates a few lines of bash that, when run, register your application as a completion handler for your program name. Completion is handled by running the completion command on your application with no arguments: `[program] _completion`.
+Note: If `[program]` is an alias you will need to specify the aliased name with the `-p|--program` option, as completion may not work otherwise: `_completion --generate-hook -p [myalias]`.
 
-If you need to use completion with an alias, specify the program name to complete for with the `-p` option: `_completion -g -p [alias-name]`.
+### How it works
+
+The `--generate-hook` option of `CompletionCommand` generates a few lines of BASH that, when executed, register your application as a completion handler for your itself in the current shell session. When you request completion for your program (by pressing tab), the completion command on your application is run with no arguments: `[program] _completion`. This uses environment variables set by BASH to get the current command line contents and cursor position, then completes from your console command definitions.
+
 
 ## Custom completion
 
@@ -34,25 +41,27 @@ The following examples are for an application with this signature: `myapp (walk|
 
         protected function runCompletion()
         {
-            $handler = $this->handler;
-            $handler->addHandlers(array(
+            $this->handler->addHandlers(array(
 
-                ... // See below for what goes in here
+                // Instances of Completion go here.
+                // See below for examples.
 
             ));
 
-            return $handler->runCompletion();
+            return $this->handler->runCompletion();
         }
 
     }
 
 
 **Command-specific argument completion with an array:**
-
-    new Completion(
-        'walk', 'direction', Completion::TYPE_ARGUMENT,
-        array('north', 'east', 'south', 'west')
-    )
+    
+    $this->handler->addHandler(
+        new Completion(
+            'walk', 'direction', Completion::TYPE_ARGUMENT,
+            array('north', 'east', 'south', 'west')
+        )
+    );
 
 This will complete for this:
 
@@ -65,16 +74,18 @@ but not this:
 
 **Non-command-specific (global) argument completion with a function**
 
-    Completion::makeGlobalHandler(
-        'direction', Completion::TYPE_ARGUMENT,
-        function(){
-            $values = array();
+    $this->handler->addHandler(
+        Completion::makeGlobalHandler(
+            'direction', Completion::TYPE_ARGUMENT,
+            function(){
+                $values = array();
 
-            // Fill the array up with stuff
+                // Fill the array up with stuff
 
-            return $values;
-        }
-    )
+                return $values;
+            }
+        )
+    );
 
 This will complete for both commands:
 
@@ -86,16 +97,29 @@ This will complete for both commands:
 
 Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type..
 
+    $this->handler->addHandler(
+        Completion::makeGlobalHandler(
+            'weather', Completion::TYPE_OPTION,
+            array('raining', 'sunny', 'everything is on fire!')
+        )
+    );
+
+
+### Example: completing references from a Git repository
+
     Completion::makeGlobalHandler(
-        'weather', Completion::TYPE_OPTION,
-        array('raining', 'sunny', 'everything is on fire!')
+        'ref',
+        Completion::TYPE_OPTION,
+        function () {
+            $raw = shell_exec('git show-ref --abbr');
+            if (preg_match_all('/refs\/(?:heads|tags)?\/?(.*)/', $raw, $matches)) {
+                return $matches[1];
+            }
+        }
     )
 
-Option completion is only supported for non-quoted values currently:
+## Behaviour notes
 
-    myapp walk -w [tab]
-    myapp walk --weather [tab]
-
-## Notes
-
-* Option shorcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
+* Option shortcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
+* Completion is not implemented for the `--option="value"` style of passing a value to an option, however `--option value` and `--option "value"` work and are functionally identical.
+* There is currently no way to hand-off to BASH to complete folder/file names.
