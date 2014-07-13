@@ -394,7 +394,7 @@ function $funcName {
     STATUS=$?;
     if [ \$STATUS -ne 0 ]; then
         echo \$RESULT;
-        exit $?;
+        return \$?;
     fi;
 
     local cur;
