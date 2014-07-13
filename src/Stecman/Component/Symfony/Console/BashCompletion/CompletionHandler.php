@@ -8,38 +8,8 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class CompletionHandler {
-
-    /**
-     * COMP_WORDS
-     * An array consisting of the individual words in the current command line.
-     * @var array|string
-     */
-    protected $words;
-
-    /**
-     * COMP_CWORD
-     * The index in COMP_WORDS of the word containing the current cursor position.
-     * @var string
-     */
-    protected $wordIndex;
-
-    /**
-     * COMP_LINE
-     * The current contents of the command line.
-     * @var string
-     */
-    protected $commandLine;
-
-    /**
-     * COMP_POINT
-     * The index of the current cursor position relative to the beginning of the
-     * current command. If the current cursor position is at the end of the current
-     * command, the value of this variable is equal to the length of COMP_LINE.
-     * @var string
-     */
-    protected $charIndex;
-
+class CompletionHandler
+{
     /**
      * Application to complete for
      * @var \Symfony\Component\Console\Application
@@ -52,57 +22,46 @@ class CompletionHandler {
     protected $command;
 
     /**
+     * @var CompletionContext
+     */
+    protected $context;
+
+    /**
      * Array of completion helpers.
      * @var Completion[]
      */
     protected $helpers = array();
 
-    public function __construct(BaseApplication $application)
+    public function __construct(BaseApplication $application, CompletionContext $context = null)
     {
         $this->application = $application;
+        $this->context = $context;
+    }
+
+    public function setContext(CompletionContext $context)
+    {
+        $this->context = $context;
     }
 
     /**
-     * Set completion context from the environment variables set by BASH completion
+     * @return CompletionContext
      */
-    public function configureFromEnvironment()
+    public function getContext()
     {
-        $this->commandLine = getenv('COMP_LINE');
-
-        if ($this->commandLine === false) {
-            throw new \RuntimeException('Failed to configure from environment; Environment var COMP_LINE not set.');
-        }
-
-        $this->wordIndex = intval(getenv('COMP_CWORD'));
-        $this->index = intval(getenv('COMP_POINT'));
-
-        $breaks = preg_quote(getenv('COMP_WORDBREAKS'));
-        $this->words = array_filter(
-            preg_split( "/[$breaks]+/", $this->commandLine),
-            function($val){
-                return $val != ' ';
-            }
-        );
-    }
-
-    /**
-     * Set completion context with an array
-     * @param $array
-     */
-    public function configureWithArray($array)
-    {
-        $this->wordIndex = $array['wordIndex'];
-        $this->commandLine = $array['commandLine'];
-        $this->charIndex = $array['charIndex'];
-        $this->words = $array['words'];
+        return $this->context;
     }
 
     /**
      * Do the actual completion, returning items delimited by spaces
+     * @throws \RuntimeException
      * @return string
      */
     public function runCompletion()
     {
+        if (!$this->context) {
+            throw new \RuntimeException('A CompletionContext must be set before requesting completion.');
+        }
+
         $cmdName = $this->getInput()->getFirstArgument();
         if($this->application->has($cmdName)){
             $this->command = $this->application->get($cmdName);
@@ -119,6 +78,8 @@ class CompletionHandler {
 
         foreach ($process as $methodName) {
             if ($result = $this->{$methodName}()) {
+
+                // Return the result of the first completion method with any suggestions
                 return $this->filterResults($result);
             }
         }
@@ -129,7 +90,8 @@ class CompletionHandler {
      */
     protected function completeForOptions()
     {
-        $word = $this->words[$this->wordIndex];
+        $word = $this->context->getCurrentWord();
+
         if ($this->command && strpos($word, '-') === 0) {
             $options = array();
 
@@ -147,7 +109,8 @@ class CompletionHandler {
      */
     protected function completeForOptionShortcuts()
     {
-        $word = $this->words[$this->wordIndex];
+        $word = $this->context->getCurrentWord();
+
         if ($this->command && strpos($word, '-') === 0 && strlen($word) == 2) {
             if ($this->command->getDefinition()->hasShortcut( substr($word, 1) )) {
                 return array($word);
@@ -160,8 +123,10 @@ class CompletionHandler {
      */
     protected function completeForOptionShortcutValues()
     {
-        if ($this->command && $this->wordIndex > 1) {
-            $left = $this->words[$this->wordIndex-1];
+        $wordIndex = $this->context->getWordIndex();
+
+        if ($this->command && $wordIndex > 1) {
+            $left = $this->context->getWordAtIndex($wordIndex - 1);
 
             // Complete short options
             if ($left[0] == '-' && strlen($left) == 2) {
@@ -188,8 +153,10 @@ class CompletionHandler {
      */
     protected function completeForOptionValues()
     {
-        if ($this->command && $this->wordIndex > 1) {
-            $left = $this->words[$this->wordIndex-1];
+        $wordIndex = $this->context->getWordIndex();
+
+        if ($this->command && $wordIndex > 1) {
+            $left = $this->context->getWordAtIndex($wordIndex - 1);
 
             if (strpos($left, '--') === 0) {
 
@@ -216,7 +183,7 @@ class CompletionHandler {
      */
     protected function completeForCommandName()
     {
-        if (!$this->command || (count($this->words) == 2 && $this->wordIndex == 1)) {
+        if (!$this->command || (count($this->context->getWords()) == 2 && $this->context->getWordIndex() == 1)) {
             $commands = $this->application->all();
             $names = array_keys($commands);
 
@@ -233,7 +200,7 @@ class CompletionHandler {
      */
     protected function completeForCommandArgs()
     {
-        if (strpos($this->words[$this->wordIndex], '-') !== 0) {
+        if (strpos($this->context->getCurrentWord(), '-') !== 0) {
             if ($this->command) {
                 return $this->formatArguments($this->command);
             }
@@ -241,12 +208,13 @@ class CompletionHandler {
     }
 
     /**
+     * Turn the context's commandline into an input for an application
      * @return ArrayInput
      */
     public function getInput()
     {
         // Filter the command line content to suit ArrayInput
-        $words = $this->words;
+        $words = $this->context->getWords();
         array_shift($words);
         $words = array_filter($words);
 
@@ -262,7 +230,7 @@ class CompletionHandler {
         $argWords = $this->mapArgumentsToWords($cmd->getDefinition()->getArguments());
 
         foreach ($argWords as $name => $wordNum) {
-            if ($this->wordIndex == $wordNum) {
+            if ($this->context->getWordIndex() == $wordNum) {
                 if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
                     return $helper->run();
                 }
@@ -314,9 +282,6 @@ class CompletionHandler {
         $prevWord = null;
         $argPositions = array();
 
-        $words = $this->words;
-        array_shift($words);
-
         $argsArray = array_keys($arguments);
 
         $optionsWithArgs = array();
@@ -327,7 +292,7 @@ class CompletionHandler {
             }
         }
 
-        foreach ($this->words as $word) {
+        foreach ($this->context->getWords() as $word) {
             $wordNum++;
 
             // Skip program name, command name, options, and option values
@@ -358,7 +323,8 @@ class CompletionHandler {
      */
     protected function filterResults($array)
     {
-        $curWord = $this->words[$this->wordIndex];
+        $curWord = $this->context->getCurrentWord();
+
         return implode("\n",
             array_filter($array, function($val) use ($curWord) {
                 return fnmatch($curWord.'*', $val);
@@ -371,7 +337,7 @@ class CompletionHandler {
      * @param string $programName
      * @return string
      */
-    public function generateBashCompletionHook($programName = false)
+    public function generateBashCompletionHook($programName = null)
     {
         global $argv;
         $command = $argv[0];
@@ -388,10 +354,11 @@ class CompletionHandler {
 
         return <<<"END"
 function $funcName {
-    export COMP_CWORD COMP_KEY COMP_LINE COMP_POINT COMP_WORDBREAKS;
+    export COMP_LINE COMP_POINT COMP_WORDBREAKS;
 
     RESULT=`$command _completion`;
     STATUS=$?;
+
     if [ \$STATUS -ne 0 ]; then
         echo \$RESULT;
         return \$?;
@@ -403,7 +370,6 @@ function $funcName {
     COMPREPLY=(`compgen -W "\$RESULT" -- \$cur`);
 
     __ltrim_colon_completions "\$cur";
-
 };
 complete -F $funcName $programName;
 END;
@@ -414,70 +380,6 @@ END;
             $this->command->getDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()
         );
-    }
-
-    /**
-     * @return array|string
-     */
-    public function getWords()
-    {
-        return $this->words;
-    }
-
-    /**
-     * @param array|string $words
-     */
-    public function setWords($words)
-    {
-        $this->words = $words;
-    }
-
-    /**
-     * @return string
-     */
-    public function getWordIndex()
-    {
-        return $this->wordIndex;
-    }
-
-    /**
-     * @param string $wordIndex
-     */
-    public function setWordIndex($wordIndex)
-    {
-        $this->wordIndex = $wordIndex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCharIndex()
-    {
-        return $this->charIndex;
-    }
-
-    /**
-     * @param string $commandLine
-     */
-    public function setCommandLine($commandLine)
-    {
-        $this->commandLine = $commandLine;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCommandLine()
-    {
-        return $this->commandLine;
-    }
-
-    /**
-     * @param string $charIndex
-     */
-    public function setCharIndex($charIndex)
-    {
-        $this->charIndex = $charIndex;
     }
 
     /**

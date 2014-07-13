@@ -53,7 +53,7 @@ END
         if ( $input->getOption('genhook') ) {
             $output->write( $handler->generateBashCompletionHook($input->getOption('program')), true );
         } else {
-            $handler->configureFromEnvironment();
+            $handler->setContext(new EnvironmentCompletionContext());
             $output->write($this->runCompletion(), true);
         }
     }
