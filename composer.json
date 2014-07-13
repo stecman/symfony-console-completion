@@ -16,8 +16,8 @@
         "phpunit/phpunit": "~3.7"
     },
     "autoload": {
-        "psr-0": {
-            "Stecman\\Component": "src/"
+        "psr-4": {
+            "Stecman\\Component\\Symfony\\Console\\BashCompletion\\": "src/"
         }
     }
 }
