@@ -2,7 +2,6 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
-use Stecman\Component\Symfony\Console\BashCompletion\CompletionHandler;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
