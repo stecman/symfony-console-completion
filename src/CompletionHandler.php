@@ -355,9 +355,10 @@ class CompletionHandler
         return <<<"END"
 function $funcName {
     export COMP_LINE COMP_POINT COMP_WORDBREAKS;
+    local RESULT STATUS;
 
     RESULT=`$command _completion`;
-    STATUS=$?;
+    STATUS=\$?;
 
     if [ \$STATUS -ne 0 ]; then
         echo \$RESULT;
