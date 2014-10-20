@@ -1,6 +1,6 @@
 # BASH completion for Symfony Console applications
 
-This package provides automatic BASH completion for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
+This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
 
 Example of zero-config use with Composer:
 
@@ -12,19 +12,27 @@ If you don't need any custom completion behaviour, all you need to do is add the
 
 1. Install `stecman/symfony-console-completion` through composer
 2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
-```php
-protected function getDefaultCommands()
-{
-   //...
-    $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
-   //...
-}
-```
+  ```php
+  protected function getDefaultCommands()
+  {
+     //...
+      $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
+     //...
+  }
+  ```
 
-3. Run `eval $([program] _completion --generate-hook)` in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'). By default this registers completion for the absolute path to you application; you can specify a command name to complete for instead using the `-p` option.
+3. Run the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
+
+  ```bash
+  [program] _completion --generate-hook | source /dev/stdin
+  ```
+  
+  By default this registers completion for the absolute path to you application. You can specify a command name to complete for instead using the `-p` option, which is useful if you're using an alias to run the program. Under BASH, an alternative command is `eval $([program] _completion --generate-hook)`, however the command above is recommended as it works for both BASH and ZSH.
 4. Add the command from step 3 to your bash profile if you want the completion to apply automatically for all new terminal sessions.
 
 Note: If `[program]` is an alias you will need to specify the aliased name with the `-p|--program` option, as completion may not work otherwise: `_completion --generate-hook -p [myalias]`.
+
+Second note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly set the shell type using the `--shell` option.
 
 ### How it works
 

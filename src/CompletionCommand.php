@@ -41,6 +41,12 @@ END
                 'p',
                 InputOption::VALUE_REQUIRED,
                 "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
+            )
+            ->addOption(
+                'shell',
+                's',
+                InputOption::VALUE_REQUIRED,
+                "Force the shell to generate a hook for <comment>(" . implode(', ', HookFactory::getShellTypes()) . ")</comment>\n"
             );
     }
 
@@ -50,7 +56,17 @@ END
         $handler = $this->handler;
 
         if ( $input->getOption('generate-hook') ) {
-            $output->write( $handler->generateBashCompletionHook($input->getOption('program')), true );
+            global $argv;
+            $program = $argv[0];
+
+            $factory = new HookFactory();
+            $hook = $factory->generateHook(
+                $input->getOption('shell') ?: $this->getShellType(),
+                $program,
+                $input->getOption('program')
+            );
+
+            $output->write($hook, true);
         } else {
             $handler->setContext(new EnvironmentCompletionContext());
             $output->write($this->runCompletion(), true);
@@ -60,6 +76,19 @@ END
     protected function runCompletion()
     {
         return $this->handler->runCompletion();
+    }
+
+    /**
+     * Determine the shell type for use with HookFactory
+     * @return string
+     */
+    protected function getShellType()
+    {
+        if (!getenv('SHELL')) {
+            throw new \RuntimeException('Could not read SHELL environment variable. Please specify your shell type with the --shell option');
+        }
+
+        return basename(realpath(getenv('SHELL')));
     }
 
 }

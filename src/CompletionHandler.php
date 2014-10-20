@@ -332,50 +332,6 @@ class CompletionHandler
         );
     }
 
-    /**
-     * Return the BASH script necessary to use bash completion with this addHandler
-     * @param string $programName
-     * @return string
-     */
-    public function generateBashCompletionHook($programName = null)
-    {
-        global $argv;
-        $command = $argv[0];
-
-        if (!$programName) {
-            $programName = $command;
-            $funcName = sprintf('_%s_%s_complete',
-                basename($programName),
-                substr(md5($command), 0, 12)
-            );
-        } else {
-            $funcName = "_{$programName}complete";
-        }
-
-        return <<<"END"
-function $funcName {
-    export COMP_LINE COMP_POINT COMP_WORDBREAKS;
-    local RESULT STATUS;
-
-    RESULT=`$command _completion`;
-    STATUS=\$?;
-
-    if [ \$STATUS -ne 0 ]; then
-        echo \$RESULT;
-        return \$?;
-    fi;
-
-    local cur;
-    _get_comp_words_by_ref -n : cur;
-
-    COMPREPLY=(`compgen -W "\$RESULT" -- \$cur`);
-
-    __ltrim_colon_completions "\$cur";
-};
-complete -F $funcName $programName;
-END;
-    }
-
     protected function getAllOptions(){
         return array_merge(
             $this->command->getDefinition()->getOptions(),
