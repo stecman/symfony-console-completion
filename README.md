@@ -1,4 +1,4 @@
-# BASH completion for Symfony Console applications
+# BASH/ZSH auto-complete for Symfony Console applications
 
 This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
 
