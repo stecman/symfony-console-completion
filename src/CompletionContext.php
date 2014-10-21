@@ -3,7 +3,11 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
-
+/**
+ * Command line context for completion
+ *
+ * Represents the current state of the command line that is being completed
+ */
 class CompletionContext
 {
     /**

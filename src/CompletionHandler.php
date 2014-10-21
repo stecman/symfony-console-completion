@@ -52,6 +52,19 @@ class CompletionHandler
     }
 
     /**
+     * @param array|Completion $array
+     */
+    public function addHandlers($array)
+    {
+        $this->helpers = array_merge($this->helpers, $array);
+    }
+
+    public function addHandler(Completion $helper)
+    {
+        $this->helpers[] = $helper;
+    }
+
+    /**
      * Do the actual completion, returning items delimited by spaces
      * @throws \RuntimeException
      * @return string
@@ -83,6 +96,20 @@ class CompletionHandler
                 return $this->filterResults($result);
             }
         }
+    }
+
+    /**
+     * Get an InputInterface representation of the completion context
+     * @return ArrayInput
+     */
+    public function getInput()
+    {
+        // Filter the command line content to suit ArrayInput
+        $words = $this->context->getWords();
+        array_shift($words);
+        $words = array_filter($words);
+
+        return new ArrayInput($words);
     }
 
     /**
@@ -208,20 +235,6 @@ class CompletionHandler
     }
 
     /**
-     * Turn the context's commandline into an input for an application
-     * @return ArrayInput
-     */
-    public function getInput()
-    {
-        // Filter the command line content to suit ArrayInput
-        $words = $this->context->getWords();
-        array_shift($words);
-        $words = array_filter($words);
-
-        return new ArrayInput($words);
-    }
-
-    /**
      * @param BaseCommand $cmd
      * @return bool|mixed
      */
@@ -337,18 +350,5 @@ class CompletionHandler
             $this->command->getDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()
         );
-    }
-
-    /**
-     * @param array|Completion $array
-     */
-    public function addHandlers($array)
-    {
-        $this->helpers = array_merge($this->helpers, $array);
-    }
-
-    public function addHandler(Completion $helper)
-    {
-        $this->helpers[] = $helper;
     }
 }
