@@ -33,7 +33,7 @@ END
             ->addOption(
                 'generate-hook',
                 'g',
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_NONE,
                 'Generate BASH code that sets up completion for this application.'
             )
             ->addOption(
@@ -41,6 +41,12 @@ END
                 'p',
                 InputOption::VALUE_REQUIRED,
                 "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
+            )
+            ->addOption(
+                'shell-type',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Set the shell type (zsh or bash). Otherwise this is determined automatically.'
             );
     }
 
@@ -55,7 +61,7 @@ END
 
             $factory = new HookFactory();
             $hook = $factory->generateHook(
-                $input->getOption('generate-hook') ?: $this->getShellType(),
+                $input->getOption('shell-type') ?: $this->getShellType(),
                 $program,
                 $input->getOption('program')
             );
@@ -79,10 +85,10 @@ END
     protected function getShellType()
     {
         if (!getenv('SHELL')) {
-            throw new \RuntimeException('Could not read SHELL environment variable. Please specify your shell type as an argument to the --generate-hook option.');
+            throw new \RuntimeException('Could not read SHELL environment variable. Please specify your shell type using the --shell-type option.');
         }
 
-        return basename(realpath(getenv('SHELL')));
+        return basename(getenv('SHELL'));
     }
 
 }
