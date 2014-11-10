@@ -32,7 +32,7 @@ If you don't need any custom completion behaviour, all you need to do is add the
 
 Note: If `[program]` is an alias you will need to specify the aliased name with the `-p|--program` option, as completion may not work otherwise: `_completion --generate-hook -p [myalias]`.
 
-Second note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly specify the shell type as an argument to the `--generate-hook` option.
+Second note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly specify the shell type with the `--shell-type` option.
 
 ### How it works
 
