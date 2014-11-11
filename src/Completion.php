@@ -60,13 +60,10 @@ class Completion {
      */
     public function run()
     {
-        if (is_array($this->completion)) {
-            return $this->completion;
-        }
-
         if ($this->isCallable()) {
             return call_user_func($this->completion);
         }
+        return (array) $this->completion;
     }
 
     /**
