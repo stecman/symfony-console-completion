@@ -36,6 +36,12 @@ class Completion {
      */
     protected $completion;
 
+    /**
+     * Suppress exceptions during auto-completion.
+     * @var bool
+     */
+    protected $suppressExceptions = true;
+
     public static function makeGlobalHandler($targetName, $type, $completion)
     {
         return new Completion(self::ALL_COMMANDS, $targetName, $type, $completion);
@@ -54,6 +60,11 @@ class Completion {
         return $this->commandName == '';
     }
 
+    public function suppressExceptions($suppress = true)
+    {
+        $this->suppressExceptions = $suppress;
+    }
+
     /**
      * Return the result of the completion helper
      * @return array|mixed
@@ -61,7 +72,14 @@ class Completion {
     public function run()
     {
         if ($this->isCallable()) {
-            return call_user_func($this->completion);
+            try {
+              return call_user_func($this->completion);
+            } catch (\Exception $e) {
+              if (!$this->suppressExceptions) {
+                throw $e;
+              }
+              return array();
+            }
         }
         return (array) $this->completion;
     }
