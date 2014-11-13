@@ -2,7 +2,6 @@
     "name": "stecman/symfony-console-completion",
     "description": "Automatic BASH completion for Symfony Console Component based applications.",
 	"license": "MIT",
-    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Stephen Holdaway",
