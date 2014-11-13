@@ -61,7 +61,12 @@ class Completion {
     public function run()
     {
         if ($this->isCallable()) {
-            return call_user_func($this->completion);
+            try {
+              return call_user_func($this->completion);
+            } catch (\Exception $e) {
+              // Always suppress exceptions from the callback.
+              return array();
+            }
         }
         return (array) $this->completion;
     }
