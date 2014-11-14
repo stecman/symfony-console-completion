@@ -109,17 +109,17 @@ END
         // Use the program path if an alias/name is not given
         $programName = $programName ?: $programPath;
 
-        return str_replace([
+        return str_replace(array(
                 '%%function_name%%',
                 '%%program_name%%',
                 '%%program_path%%',
                 '%%completion_command%%',
-            ], [
+            ), array(
                 $this->generateFunctionName($programPath, $programName),
                 $programName,
                 $programPath,
                 "$programPath _completion"
-            ],
+            ),
             $this->stripComments(self::$hooks[$type])
         );
     }
