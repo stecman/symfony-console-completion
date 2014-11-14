@@ -34,12 +34,12 @@ function %%function_name%% {
     export COMP_LINE COMP_POINT COMP_WORDBREAKS;
     local RESULT STATUS;
 
-    RESULT=`%%completion_command%%`;
+    RESULT="$(%%completion_command%%)";
     STATUS=$?;
 
     # Bail out if PHP didn't exit cleanly
     if [ $STATUS -ne 0 ]; then
-        echo $RESULT;
+        echo -e "$RESULT";
         return $?;
     fi;
 
@@ -72,7 +72,7 @@ function %%function_name%% {
 
     # Bail out if PHP didn't exit cleanly
     if [ $STATUS -ne 0 ]; then
-        echo $RESULT;
+        echo -e "$RESULT";
         return $?;
     fi;
 
