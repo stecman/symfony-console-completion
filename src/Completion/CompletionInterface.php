@@ -1,0 +1,50 @@
+<?php
+
+
+namespace Stecman\Component\Symfony\Console\BashCompletion\Completion;
+
+
+interface CompletionInterface
+{
+    // Sugar for indicating that a Completion should run for all command names
+    // Intended to avoid a meaningless null parameter in the constructors of implementing classes
+    const ALL_COMMANDS = null;
+
+    const TYPE_OPTION = 'option';
+    const TYPE_ARGUMENT = 'argument';
+
+    /**
+     * Return the type of input completion should be run for
+     *
+     * @see \Symfony\Component\Console\Command\Command::addArgument
+     * @see \Symfony\Component\Console\Command\Command::addOption
+     * @return string - one of the CompletionInterface::TYPE_* constants
+     */
+    public function getType();
+
+    /**
+     * Return the name of the command completion should be run for
+     * If the return value is CompletionInterface::ALL_COMMANDS, the completion will be run for any command name
+     *
+     * @see \Symfony\Component\Console\Command\Command::setName
+     * @return string|null
+     */
+    public function getCommandName();
+
+    /**
+     * Return the option/argument name the completion should be run for
+     * CompletionInterface::getType determines whether the target name refers to an option or an argument
+     *
+     * @return string
+     */
+    public function getTargetName();
+
+    /**
+     * Execute the completion
+     *
+     * Returns an array of possible completions or null to indicate that no completions are available.
+     *
+     * @return array|null
+     */
+    public function run();
+}

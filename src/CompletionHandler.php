@@ -2,6 +2,7 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -59,7 +60,7 @@ class CompletionHandler
         $this->helpers = array_merge($this->helpers, $array);
     }
 
-    public function addHandler(Completion $helper)
+    public function addHandler(CompletionInterface $helper)
     {
         $this->helpers[] = $helper;
     }
@@ -256,7 +257,7 @@ class CompletionHandler
     /**
      * @param $name
      * @param string $type
-     * @return Completion
+     * @return CompletionInterface
      */
     protected function getCompletionHelper($name, $type)
     {
@@ -265,7 +266,7 @@ class CompletionHandler
                 continue;
             }
 
-            if ($helper->isGlobal() || $helper->getCommandName() == $this->command->getName()) {
+            if ($helper->getCommandName() == CompletionInterface::ALL_COMMANDS || $helper->getCommandName() == $this->command->getName()) {
                 if ($helper->getTargetName() == $name) {
                     return $helper;
                 }

@@ -4,13 +4,10 @@
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
 
-class Completion {
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
 
-    const ALL_COMMANDS = null;
-
-    const TYPE_OPTION = 'option';
-    const TYPE_ARGUMENT = 'argument';
-
+class Completion implements CompletionInterface
+{
     /**
      * The option/argument name this helper should be run for
      * @var string
@@ -31,14 +28,15 @@ class Completion {
     protected $targetName;
 
     /**
-     * Array or Closure
-     * @var mixed
+     * Array of completion results or a callback to generate completion results
+     * The callback can be in any form accepted by call_user_func
+     * @var callable|array
      */
     protected $completion;
 
     public static function makeGlobalHandler($targetName, $type, $completion)
     {
-        return new Completion(self::ALL_COMMANDS, $targetName, $type, $completion);
+        return new Completion(CompletionInterface::ALL_COMMANDS, $targetName, $type, $completion);
     }
 
     public function __construct($commandName, $targetName, $type, $completion)
@@ -47,11 +45,6 @@ class Completion {
         $this->targetName = $targetName;
         $this->type = $type;
         $this->completion = $completion;
-    }
-
-    public function isGlobal()
-    {
-        return $this->commandName == '';
     }
 
     /**

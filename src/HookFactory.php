@@ -37,16 +37,22 @@ function %%function_name%% {
     RESULT="$(%%completion_command%%)";
     STATUS=$?;
 
+    local cur;
+    _get_comp_words_by_ref -n : cur;
+
+    # Check if shell provided path completion is requested
+    # @see Completion\ShellPathCompletion
+    if [ $STATUS -eq 200 ]; then
+        _filedir;
+        return 0;
+
     # Bail out if PHP didn't exit cleanly
-    if [ $STATUS -ne 0 ]; then
+    elif [ $STATUS -ne 0 ]; then
         echo -e "$RESULT";
         return $?;
     fi;
 
-    local cur;
-    _get_comp_words_by_ref -n : cur;
-
-    COMPREPLY=(`compgen -W "$RESULT" -- \$cur`);
+    COMPREPLY=(`compgen -W "$RESULT" -- $cur`);
 
     __ltrim_colon_completions "$cur";
 };
@@ -70,8 +76,14 @@ function %%function_name%% {
     RESULT=("${(@f)$( %%completion_command%% )}")
     STATUS=$?;
 
+    # Check if shell provided path completion is requested
+    # @see Completion\ShellPathCompletion
+    if [ $STATUS -eq 200 ]; then
+        _path_files;
+        return 0;
+
     # Bail out if PHP didn't exit cleanly
-    if [ $STATUS -ne 0 ]; then
+    elif [ $STATUS -ne 0 ]; then
         echo -e "$RESULT";
         return $?;
     fi;
