@@ -59,7 +59,7 @@ class MyCompletionCommand extends CompletionCommand {
 }
 ```
 
-**Command-specific argument completion with an array:**
+##### Command-specific argument completion with an array
   
 ```php  
 $this->handler->addHandler(
@@ -87,7 +87,7 @@ but not this:
 $ myapp run [tab]
 ```
 
-**Non-command-specific (global) argument completion with a function**
+##### Non-command-specific (global) argument completion with a function
 
 ```php
 $this->handler->addHandler(
@@ -110,7 +110,7 @@ $ myapp walk [tab]
 $ myapp run [tab]
 ```
 
-**Option completion**
+##### Option completion
 
 Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type..
 
@@ -143,8 +143,20 @@ Completion::makeGlobalHandler(
 )
 ```
 
+### Example: completing filesystem paths
+
+This library provides the completion class `ShellPathCompletion` which defers path completion to the shell's built-in path completion behaviour rather than implementing it in PHP.
+
+```php
+new Completion\ShellPathCompletion(
+    Completion::ALL_COMMANDS,
+    'path',
+    Completion::TYPE_OPTION
+)
+
+```
+
 ## Behaviour notes
 
 * Option shortcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
 * Completion is not implemented for the `--option="value"` style of passing a value to an option, however `--option value` and `--option "value"` work and are functionally identical.
-* There is currently no way to hand-off to BASH to complete folder/file names.
