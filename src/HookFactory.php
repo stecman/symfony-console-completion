@@ -57,7 +57,9 @@ function %%function_name%% {
     __ltrim_colon_completions "$cur";
 };
 
-complete -F %%function_name%% %%program_name%%;
+if command -v _get_comp_words_by_ref >/dev/null 2>&1; then
+    complete -F %%function_name%% %%program_name%%;
+fi
 END
 
         // ZSH Hook
