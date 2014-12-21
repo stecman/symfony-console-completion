@@ -21,13 +21,21 @@ If you don't need any custom completion behaviour, all you need to do is add the
   }
   ```
 
-3. Run the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
+3. Register completion for your application by running one of the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
 
   ```bash
+  # BASH 4.x, ZSH
+  source <([program] _completion --generate-hook)
+  
+  # BASH 3.x, ZSH
   [program] _completion --generate-hook | source /dev/stdin
+  
+  # BASH (any version)
+  eval $([program] _completion --generate-hook)
   ```
   
-  By default this registers completion for the absolute path to you application. You can specify a command name to complete for instead using the `-p` option, which is useful if you're using an alias to run the program. Under BASH, an alternative command is `eval $([program] _completion --generate-hook)`, however the command above is recommended as it works for both BASH and ZSH.
+  By default this registers completion for the absolute path to you application. You can specify a command name to complete for instead using the `-p` option, which is useful if you're using an alias to run the program.
+
 4. Add the command from step 3 to your bash profile if you want the completion to apply automatically for all new terminal sessions.
 
 Note: If `[program]` is an alias you will need to specify the aliased name with the `-p|--program` option, as completion may not work otherwise: `_completion --generate-hook -p [myalias]`.
