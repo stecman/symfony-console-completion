@@ -2,6 +2,7 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command as BaseCommand;
@@ -245,6 +246,10 @@ class CompletionHandler
                 if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
                     return $helper->run();
                 }
+
+                if ($this->command instanceof CompletionAwareInterface) {
+                    return $this->command->completeArgumentValues($name, $this->context);
+                }
             }
         }
 
@@ -279,6 +284,10 @@ class CompletionHandler
     {
         if ($helper = $this->getCompletionHelper($option->getName(), Completion::TYPE_OPTION)) {
             return $helper->run();
+        }
+
+        if ($this->command instanceof CompletionAwareInterface) {
+            return $this->command->completeOptionValues($option->getName(), $this->context);
         }
     }
 

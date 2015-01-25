@@ -15,6 +15,7 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
+        require_once __DIR__ . '/Fixtures/CompletionAwareCommand.php';
         require_once __DIR__ . '/Fixtures/TestBasicCommand.php';
         require_once __DIR__ . '/Fixtures/TestSymfonyStyleCommand.php';
     }
@@ -23,6 +24,7 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $this->application = new Application('Base application');
         $this->application->addCommands([
+            new \CompletionAwareCommand(),
             new \TestBasicCommand(),
             new \TestSymfonyStyleCommand()
         ]);
@@ -39,7 +41,10 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     public function testCompleteCommandNames()
     {
         $handler = $this->createHandler('app ');
-        $this->assertEquals(['help', 'list', 'wave', 'walk:north'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(
+            ['help', 'list', 'completion-aware', 'wave', 'walk:north'],
+            $this->getTerms($handler->runCompletion())
+        );
     }
 
     public function testCompleteCommandNameNonMatch()
@@ -125,6 +130,30 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider completionAwareCommandDataProvider
+     */
+    public function testCompletionAwareCommand($commandLine, array $suggestions)
+    {
+        $handler = $this->createHandler($commandLine);
+        $this->assertSame($suggestions, $this->getTerms($handler->runCompletion()));
+    }
+
+    public function completionAwareCommandDataProvider()
+    {
+        return [
+            'not complete aware command' => ['app wave --vigorous ', []],
+            'argument suggestions' => ['app completion-aware any-arg ', ['one-arg', 'two-arg']],
+            'argument no suggestions' => ['app completion-aware ', []],
+            'argument suggestions + context' => ['app completion-aware any-arg one', ['one-arg', 'one-arg-context']],
+            'option suggestions' => ['app completion-aware --option-with-suggestions ', ['one-opt', 'two-opt']],
+            'option no suggestions' => ['app completion-aware --option-without-suggestions ', []],
+            'option suggestions + context' => [
+                'app completion-aware --option-with-suggestions one', ['one-opt', 'one-opt-context']
+            ],
+        ];
+    }
+
+    /**
      * Create a handler set up with the given commandline and cursor position
      *
      * @param $commandLine
@@ -148,6 +177,10 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
      */
     protected function getTerms($handlerOutput)
     {
+        if (null === $handlerOutput) {
+            return array();
+        }
+
         return explode("\n", $handlerOutput);
     }
 }
