@@ -3,7 +3,8 @@
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\EnvironmentCompletionContext;
 
-class CompletionContextTest extends PHPUnit_Framework_TestCase {
+class CompletionContextTest extends PHPUnit_Framework_TestCase
+{
 
     public function testWordBreakSplit()
     {
@@ -68,5 +69,4 @@ class CompletionContextTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals('li', $context->getCurrentWord());
     }
-
 }

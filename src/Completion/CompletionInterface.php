@@ -3,7 +3,6 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion\Completion;
 
-
 interface CompletionInterface
 {
     // Sugar for indicating that a Completion should run for all command names

@@ -3,7 +3,8 @@
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionHandler;
 
-class CompletionHandlerTest extends PHPUnit_Framework_TestCase {
+class CompletionHandlerTest extends PHPUnit_Framework_TestCase
+{
 
     public function testGenerateBashCompletionHook()
     {
@@ -22,5 +23,4 @@ class CompletionHandlerTest extends PHPUnit_Framework_TestCase {
         $context = new CompletionContext();
         return new CompletionHandler($app, $context);
     }
-
 }
