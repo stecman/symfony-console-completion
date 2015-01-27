@@ -7,7 +7,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CompletionCommand extends SymfonyCommand {
+class CompletionCommand extends SymfonyCommand
+{
 
     /**
      * @var CompletionHandler
@@ -52,10 +53,10 @@ END
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->handler = new CompletionHandler( $this->getApplication() );
+        $this->handler = new CompletionHandler($this->getApplication());
         $handler = $this->handler;
 
-        if ( $input->getOption('generate-hook') ) {
+        if ($input->getOption('generate-hook')) {
             global $argv;
             $program = $argv[0];
 
@@ -90,5 +91,4 @@ END
 
         return basename(getenv('SHELL'));
     }
-
 }
