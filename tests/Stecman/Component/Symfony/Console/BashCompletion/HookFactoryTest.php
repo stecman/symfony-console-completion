@@ -65,7 +65,6 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
         );
 
         if (is_resource($process)) {
-
             // Push code into STDIN for the syntax checking process
             fwrite($pipes[0], $code);
             fclose($pipes[0]);
