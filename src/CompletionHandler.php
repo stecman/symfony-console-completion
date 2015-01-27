@@ -77,7 +77,7 @@ class CompletionHandler
         }
 
         $cmdName = $this->getInput()->getFirstArgument();
-        if($this->application->has($cmdName)){
+        if ($this->application->has($cmdName)) {
             $this->command = $this->application->get($cmdName);
         }
 
@@ -92,7 +92,6 @@ class CompletionHandler
 
         foreach ($process as $methodName) {
             if ($result = $this->{$methodName}()) {
-
                 // Return the result of the first completion method with any suggestions
                 return $this->filterResults($result);
             }
@@ -140,7 +139,7 @@ class CompletionHandler
         $word = $this->context->getCurrentWord();
 
         if ($this->command && strpos($word, '-') === 0 && strlen($word) == 2) {
-            if ($this->command->getDefinition()->hasShortcut( substr($word, 1) )) {
+            if ($this->command->getDefinition()->hasShortcut(substr($word, 1))) {
                 return array($word);
             }
         }
@@ -158,7 +157,6 @@ class CompletionHandler
 
             // Complete short options
             if ($left[0] == '-' && strlen($left) == 2) {
-
                 $shortcut = substr($left, 1);
                 $def = $this->command->getDefinition();
 
@@ -187,7 +185,6 @@ class CompletionHandler
             $left = $this->context->getWordAtIndex($wordIndex - 1);
 
             if (strpos($left, '--') === 0) {
-
                 $name = substr($left, 2);
                 $def = $this->command->getDefinition();
 
@@ -262,7 +259,7 @@ class CompletionHandler
     protected function getCompletionHelper($name, $type)
     {
         foreach ($this->helpers as $helper) {
-            if ($helper->getType() != $type){
+            if ($helper->getType() != $type) {
                 continue;
             }
 
@@ -312,8 +309,7 @@ class CompletionHandler
             // Skip program name, command name, options, and option values
             if ($wordNum < 2
                 || ($word && '-' === $word[0])
-                || in_array($prevWord, $optionsWithArgs))
-            {
+                || in_array($prevWord, $optionsWithArgs)) {
                 $prevWord = $word;
                 continue;
             } else {
@@ -339,14 +335,16 @@ class CompletionHandler
     {
         $curWord = $this->context->getCurrentWord();
 
-        return implode("\n",
+        return implode(
+            "\n",
             array_filter($array, function($val) use ($curWord) {
                 return fnmatch($curWord.'*', $val);
             })
         );
     }
 
-    protected function getAllOptions(){
+    protected function getAllOptions()
+    {
         return array_merge(
             $this->command->getDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()

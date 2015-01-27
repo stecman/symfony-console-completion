@@ -151,7 +151,6 @@ class CompletionContext
         // 1: Word
         // 2: Break characters
         foreach ($matches[0] as $index => $wholeMatch) {
-
             // Determine which word the cursor is in
             $cursor += strlen($wholeMatch);
             $word = $matches[1][$index];
@@ -163,13 +162,11 @@ class CompletionContext
                 $cursorWordOffset = $this->charIndex - ($cursor - strlen($matches[2][$index]) - 1);
 
                 if ($cursorWordOffset < 0) {
-
                     // Cursor is inside the word - truncate the word at the cursor
                     // (This emulates normal BASH completion behaviour I've observed, though I'm not entirely sure if it's useful)
                     $word = substr($word, 0, strlen($word) + $cursorWordOffset);
 
-                } else if ($cursorWordOffset > 0) {
-
+                } elseif ($cursorWordOffset > 0) {
                     // Cursor is in the break-space after the word
                     // Push an empty word at the cursor
                     $this->wordIndex++;
@@ -197,5 +194,4 @@ class CompletionContext
         $this->words = null;
         $this->wordIndex = null;
     }
-
 }

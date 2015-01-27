@@ -3,7 +3,6 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
-
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
 
 class Completion implements CompletionInterface
@@ -127,5 +126,4 @@ class Completion implements CompletionInterface
     {
         return is_callable($this->completion);
     }
-
 }

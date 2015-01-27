@@ -3,7 +3,6 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
-
 final class HookFactory
 {
     /**
@@ -121,12 +120,14 @@ END
         // Use the program path if an alias/name is not given
         $programName = $programName ?: $programPath;
 
-        return str_replace(array(
+        return str_replace(
+            array(
                 '%%function_name%%',
                 '%%program_name%%',
                 '%%program_path%%',
                 '%%completion_command%%',
-            ), array(
+            ),
+            array(
                 $this->generateFunctionName($programPath, $programName),
                 $programName,
                 $programPath,
@@ -142,7 +143,8 @@ END
      */
     protected function generateFunctionName($programPath, $programName)
     {
-        return sprintf('_%s_%s_complete',
+        return sprintf(
+            '_%s_%s_complete',
             basename($programName),
             substr(md5($programPath), 0, 16)
         );

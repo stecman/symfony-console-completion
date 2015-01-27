@@ -33,4 +33,4 @@ class EnvironmentCompletionContext extends CompletionContext
 
         $this->wordBreaks = $breaks;
     }
-} 
+}
