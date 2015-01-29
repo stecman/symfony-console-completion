@@ -23,11 +23,11 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->application = new Application('Base application');
-        $this->application->addCommands([
+        $this->application->addCommands(array(
             new \CompletionAwareCommand(),
             new \TestBasicCommand(),
             new \TestSymfonyStyleCommand()
-        ]);
+        ));
     }
 
     public function testCompleteAppName()
@@ -42,7 +42,7 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $handler = $this->createHandler('app ');
         $this->assertEquals(
-            ['help', 'list', 'completion-aware', 'wave', 'walk:north'],
+            array('help', 'list', 'completion-aware', 'wave', 'walk:north'),
             $this->getTerms($handler->runCompletion())
         );
     }
@@ -56,13 +56,13 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
     public function testCompleteCommandNamePartialTwoMatches()
     {
         $handler = $this->createHandler('app wa');
-        $this->assertEquals(['wave', 'walk:north'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('wave', 'walk:north'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteCommandNamePartialOneMatch()
     {
         $handler = $this->createHandler('app wav');
-        $this->assertEquals(['wave'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('wave'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteCommandNameFull()
@@ -70,7 +70,7 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = $this->createHandler('app wave');
 
         // Completing on a matching word should return that word so that completion can continue
-        $this->assertEquals(['wave'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('wave'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteSingleDash()
@@ -86,30 +86,30 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
         $handler = $this->createHandler('app wave -j');
 
         // If a valid option shortcut is completed on, the shortcut is returned so that completion can continue
-        $this->assertEquals(['-j'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('-j'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteDoubleDash()
     {
         $handler = $this->createHandler('app wave --');
-        $this->assertArraySubset(['--vigorous', '--jazz-hands'], $this->getTerms($handler->runCompletion()));
+        $this->assertArraySubset(array('--vigorous', '--jazz-hands'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteOptionFull()
     {
         $handler = $this->createHandler('app wave --jazz');
-        $this->assertArraySubset(['--jazz-hands'], $this->getTerms($handler->runCompletion()));
+        $this->assertArraySubset(array('--jazz-hands'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteOptionOrder()
     {
         // Completion of options should be able to happen anywhere after the command name
         $handler = $this->createHandler('app wave bruce --vi');
-        $this->assertEquals(['--vigorous'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('--vigorous'), $this->getTerms($handler->runCompletion()));
 
         // Completing an option mid-commandline should work as normal
         $handler = $this->createHandler('app wave --vi --jazz-hands bruce', 13);
-        $this->assertEquals(['--vigorous'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('--vigorous'), $this->getTerms($handler->runCompletion()));
     }
 
     public function testCompleteColonCommand()
@@ -120,13 +120,13 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
         //
         // @see https://github.com/stecman/symfony-console-completion/pull/1
         $handler = $this->createHandler('app walk');
-        $this->assertEquals(['walk:north'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('walk:north'), $this->getTerms($handler->runCompletion()));
 
         $handler = $this->createHandler('app walk:north');
-        $this->assertEquals(['walk:north'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('walk:north'), $this->getTerms($handler->runCompletion()));
 
         $handler = $this->createHandler('app walk:north --deploy');
-        $this->assertEquals(['--deploy:jazz-hands'], $this->getTerms($handler->runCompletion()));
+        $this->assertEquals(array('--deploy:jazz-hands'), $this->getTerms($handler->runCompletion()));
     }
 
     /**
@@ -140,17 +140,17 @@ class CompletionHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function completionAwareCommandDataProvider()
     {
-        return [
-            'not complete aware command' => ['app wave --vigorous ', []],
-            'argument suggestions' => ['app completion-aware any-arg ', ['one-arg', 'two-arg']],
-            'argument no suggestions' => ['app completion-aware ', []],
-            'argument suggestions + context' => ['app completion-aware any-arg one', ['one-arg', 'one-arg-context']],
-            'option suggestions' => ['app completion-aware --option-with-suggestions ', ['one-opt', 'two-opt']],
-            'option no suggestions' => ['app completion-aware --option-without-suggestions ', []],
-            'option suggestions + context' => [
-                'app completion-aware --option-with-suggestions one', ['one-opt', 'one-opt-context']
-            ],
-        ];
+        return array(
+            'not complete aware command' => array('app wave --vigorous ', array()),
+            'argument suggestions' => array('app completion-aware any-arg ', array('one-arg', 'two-arg')),
+            'argument no suggestions' => array('app completion-aware ', array()),
+            'argument suggestions + context' => array('app completion-aware any-arg one', array('one-arg', 'one-arg-context')),
+            'option suggestions' => array('app completion-aware --option-with-suggestions ', array('one-opt', 'two-opt')),
+            'option no suggestions' => array('app completion-aware --option-without-suggestions ', array()),
+            'option suggestions + context' => array(
+                'app completion-aware --option-with-suggestions one', array('one-opt', 'one-opt-context')
+            ),
+        );
     }
 
     /**

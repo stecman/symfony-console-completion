@@ -56,11 +56,11 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $process = proc_open(
             escapeshellcmd($syntaxCheckCommand),
-            [
-                0 => ['pipe', 'r'],
-                1 => ['pipe', 'w'],
-                2 => ['pipe', 'w']
-            ],
+            array(
+                0 => array('pipe', 'r'),
+                1 => array('pipe', 'w'),
+                2 => array('pipe', 'w')
+            ),
             $pipes
         );
 
