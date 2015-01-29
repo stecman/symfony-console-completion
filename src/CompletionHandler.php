@@ -292,18 +292,22 @@ class CompletionHandler
     }
 
     /**
-     * @param $arguments array|InputArgument
-     * @return array
+     * Step through the command line to determine which words positions represent which argument values
+     *
+     * The word indexes of argument values are found by eliminating words that are known to not be arguments (options,
+     * option values, and command names). Any word that doesn't match for elimination is assumed to be an argument value,
+     *
+     * @param InputArgument[] $argumentDefinitions
+     * @return array as [argument name => word index on command line]
      */
-    protected function mapArgumentsToWords($arguments)
+    protected function mapArgumentsToWords($argumentDefinitions)
     {
-        $argIndex = 0;
-        $wordNum = -1;
-        $prevWord = null;
-        $argPositions = array();
+        $argumentPositions = array();
+        $argumentNumber = 0;
+        $previousWord = null;
+        $argumentNames = array_keys($argumentDefinitions);
 
-        $argsArray = array_keys($arguments);
-
+        // Build a list of option values to filter out
         $optionsWithArgs = array();
 
         foreach ($this->getAllOptions() as $option) {
@@ -312,26 +316,27 @@ class CompletionHandler
             }
         }
 
-        foreach ($this->context->getWords() as $word) {
-            $wordNum++;
+        foreach ($this->context->getWords() as $wordIndex => $word) {
 
             // Skip program name, command name, options, and option values
-            if ($wordNum < 2
+            if ($wordIndex < 2
                 || ($word && '-' === $word[0])
-                || in_array($prevWord, $optionsWithArgs)) {
-                $prevWord = $word;
+                || in_array($previousWord, $optionsWithArgs)) {
+                $previousWord = $word;
                 continue;
             } else {
-                $prevWord = $word;
+                $previousWord = $word;
             }
 
-            if (isset($argsArray[$argIndex])) {
-                $argPositions[$argsArray[$argIndex]] = $wordNum;
+            // If argument n exists, pair that argument's name with the current word
+            if (isset($argumentNames[$argumentNumber])) {
+                $argumentPositions[$argumentNames[$argumentNumber]] = $wordIndex;
             }
-            $argIndex++;
+
+            $argumentNumber++;
         }
 
-        return $argPositions;
+        return $argumentPositions;
     }
 
     /**
