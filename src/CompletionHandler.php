@@ -92,8 +92,8 @@ class CompletionHandler
         );
 
         foreach ($process as $methodName) {
-            if ($result = $this->{$methodName}()) {
-                // Return the result of the first completion method with any suggestions
+            if (is_array($result = $this->{$methodName}())) {
+                // Return the result of the first completion mode that matches
                 return $this->filterResults($result);
             }
         }
@@ -116,7 +116,7 @@ class CompletionHandler
     }
 
     /**
-     * @return array|null
+     * @return array|false
      */
     protected function completeForOptions()
     {
@@ -131,11 +131,13 @@ class CompletionHandler
 
             return $options;
         }
+
+        return false;
     }
 
     /**
      * Complete an option shortcut if it exists, but don't offer a list of shortcuts
-     * @return array|null
+     * @return array|false
      */
     protected function completeForOptionShortcuts()
     {
@@ -146,10 +148,12 @@ class CompletionHandler
                 return array($word);
             }
         }
+
+        return false;
     }
 
     /**
-     * @return mixed
+     * @return array|false
      */
     protected function completeForOptionShortcutValues()
     {
@@ -178,7 +182,7 @@ class CompletionHandler
     }
 
     /**
-     * @return mixed
+     * @return array|false
      */
     protected function completeForOptionValues()
     {
@@ -207,7 +211,7 @@ class CompletionHandler
 
     /**
      * If a command is not set, list available commands
-     * @return array|null
+     * @return array|false
      */
     protected function completeForCommandName()
     {
@@ -221,10 +225,12 @@ class CompletionHandler
 
             return $names;
         }
+
+        return false;
     }
 
     /**
-     * @return bool|mixed
+     * @return array|false
      */
     protected function completeForCommandArgs()
     {
@@ -233,11 +239,13 @@ class CompletionHandler
                 return $this->formatArguments($this->command);
             }
         }
+
+        return false;
     }
 
     /**
      * @param BaseCommand $cmd
-     * @return bool|mixed
+     * @return array|false
      */
     protected function formatArguments(BaseCommand $cmd)
     {
