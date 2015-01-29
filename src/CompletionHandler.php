@@ -264,7 +264,7 @@ class CompletionHandler
     protected function getCompletionHelper($name, $type)
     {
         foreach ($this->helpers as $helper) {
-            if ($helper->getType() != $type) {
+            if ($helper->getType() != $type && $helper->getType() != CompletionInterface::ALL_TYPES) {
                 continue;
             }
 

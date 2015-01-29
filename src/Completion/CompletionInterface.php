@@ -5,9 +5,10 @@ namespace Stecman\Component\Symfony\Console\BashCompletion\Completion;
 
 interface CompletionInterface
 {
-    // Sugar for indicating that a Completion should run for all command names
-    // Intended to avoid a meaningless null parameter in the constructors of implementing classes
+    // Sugar for indicating that a Completion should run for all command names and for all types
+    // Intended to avoid meaningless null parameters in the constructors of implementing classes
     const ALL_COMMANDS = null;
+    const ALL_TYPES = null;
 
     const TYPE_OPTION = 'option';
     const TYPE_ARGUMENT = 'argument';
