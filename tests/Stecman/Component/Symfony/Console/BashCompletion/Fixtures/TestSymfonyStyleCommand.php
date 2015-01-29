@@ -12,6 +12,16 @@ class TestSymfonyStyleCommand extends \Symfony\Component\Console\Command\Command
             ->addOption(
                 'deploy:jazz-hands',
                 'j'
+            )
+            ->addOption(
+                'style',
+                's',
+                \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED
+            )
+            ->addOption(
+                'target',
+                't',
+                \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED
             );
     }
 }

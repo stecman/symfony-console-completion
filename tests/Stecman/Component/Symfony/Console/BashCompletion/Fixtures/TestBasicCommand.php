@@ -13,6 +13,11 @@ class TestBasicCommand extends \Symfony\Component\Console\Command\Command
                 'jazz-hands',
                 'j'
             )
+            ->addOption(
+                'style',
+                's',
+                \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED
+            )
             ->addArgument(
                 'target',
                 \Symfony\Component\Console\Input\InputArgument::REQUIRED
