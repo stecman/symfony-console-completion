@@ -39,11 +39,7 @@ class CompletionTest extends CompletionHandlerTestCase
                 ),
                 array(
                     'app walk:north --target ' => array(),
-                    'app wave ' => $options,
-
-                    // If a Completion isn't provided for a required value, the value should be skipped
-                    // This is to prevent a situation where completion stops working after entering a completion-less term
-                    'app wave --style ' => $options,
+                    'app wave ' => $options
                 )
             ),
 

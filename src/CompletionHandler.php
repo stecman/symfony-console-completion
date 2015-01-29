@@ -311,8 +311,12 @@ class CompletionHandler
         $optionsWithArgs = array();
 
         foreach ($this->getAllOptions() as $option) {
-            if ($option->isValueRequired() && $option->getShortcut()) {
-                $optionsWithArgs[] = '-'.$option->getShortcut();
+            if ($option->isValueRequired()) {
+                $optionsWithArgs[] = '--' . $option->getName();
+
+                if ($option->getShortcut()) {
+                    $optionsWithArgs[] = '-' . $option->getShortcut();
+                }
             }
         }
 
