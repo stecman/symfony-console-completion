@@ -54,9 +54,9 @@ class CompletionHandler
     }
 
     /**
-     * @param array|Completion $array
+     * @param Completion[] $array
      */
-    public function addHandlers($array)
+    public function addHandlers(array $array)
     {
         $this->helpers = array_merge($this->helpers, $array);
     }
@@ -92,9 +92,11 @@ class CompletionHandler
         );
 
         foreach ($process as $methodName) {
-            if (is_array($result = $this->{$methodName}())) {
+            $result = $this->{$methodName}();
+
+            if (false !== $result) {
                 // Return the result of the first completion mode that matches
-                return $this->filterResults($result);
+                return $this->filterResults((array) $result);
             }
         }
 
@@ -284,11 +286,13 @@ class CompletionHandler
                 }
             }
         }
+
+        return null;
     }
 
     /**
      * @param InputOption $option
-     * @return array|mixed
+     * @return array|false
      */
     protected function completeOption(InputOption $option)
     {
@@ -299,6 +303,8 @@ class CompletionHandler
         if ($this->command instanceof CompletionAwareInterface) {
             return $this->command->completeOptionValues($option->getName(), $this->context);
         }
+
+        return false;
     }
 
     /**
@@ -331,7 +337,6 @@ class CompletionHandler
         }
 
         foreach ($this->context->getWords() as $wordIndex => $word) {
-
             // Skip program name, command name, options, and option values
             if ($wordIndex < 2
                 || ($word && '-' === $word[0])
@@ -369,6 +374,11 @@ class CompletionHandler
         });
     }
 
+    /**
+     * Returns list of all options.
+     *
+     * @return InputOption[]
+     */
     protected function getAllOptions()
     {
         return array_merge(

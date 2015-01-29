@@ -44,7 +44,7 @@ interface CompletionInterface
      *
      * Returns an array of possible completions or null to indicate that no completions are available.
      *
-     * @return array|null
+     * @return array
      */
     public function run();
 }
