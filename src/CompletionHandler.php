@@ -69,7 +69,7 @@ class CompletionHandler
     /**
      * Do the actual completion, returning items delimited by spaces
      * @throws \RuntimeException
-     * @return string
+     * @return string[]
      */
     public function runCompletion()
     {
@@ -97,6 +97,8 @@ class CompletionHandler
                 return $this->filterResults($result);
             }
         }
+
+        return array();
     }
 
     /**
@@ -114,7 +116,7 @@ class CompletionHandler
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     protected function completeForOptions()
     {
@@ -133,7 +135,7 @@ class CompletionHandler
 
     /**
      * Complete an option shortcut if it exists, but don't offer a list of shortcuts
-     * @return array
+     * @return array|null
      */
     protected function completeForOptionShortcuts()
     {
@@ -205,7 +207,7 @@ class CompletionHandler
 
     /**
      * If a command is not set, list available commands
-     * @return array
+     * @return array|null
      */
     protected function completeForCommandName()
     {
@@ -344,21 +346,19 @@ class CompletionHandler
     }
 
     /**
-     * Return an completion result for use as COMPREPLY.
-     * Only matches to the currently selected word are returned.
-     * @param $array
-     * @return string
+     * Filter a list of results to those starting with the current word
+     * The resulting list is the correct words to put in COMPREPLY.
+     *
+     * @param string[] $array
+     * @return string[]
      */
-    protected function filterResults($array)
+    protected function filterResults(array $array)
     {
         $curWord = $this->context->getCurrentWord();
 
-        return implode(
-            "\n",
-            array_filter($array, function($val) use ($curWord) {
-                return fnmatch($curWord.'*', $val);
-            })
-        );
+        return array_filter($array, function($val) use ($curWord) {
+            return fnmatch($curWord.'*', $val);
+        });
     }
 
     protected function getAllOptions()

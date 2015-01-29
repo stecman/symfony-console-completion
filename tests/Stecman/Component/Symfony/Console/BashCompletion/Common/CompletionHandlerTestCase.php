@@ -50,17 +50,14 @@ abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Convert the string output of CompletionHandler to an array of completion suggestions
+     * Get the list of terms from the output of CompletionHandler
+     * The array index needs to be reset so that PHPUnit's array equality assertions match correctly.
      *
      * @param string $handlerOutput
      * @return string[]
      */
     protected function getTerms($handlerOutput)
     {
-        if (null === $handlerOutput) {
-            return array();
-        }
-
-        return explode("\n", $handlerOutput);
+        return array_values($handlerOutput);
     }
 }
