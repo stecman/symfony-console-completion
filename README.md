@@ -1,5 +1,12 @@
 # BASH/ZSH auto-complete for Symfony Console applications
 
+[![Build Status](https://travis-ci.org/stecman/symfony-console-completion.svg?branch=master)](https://travis-ci.org/stecman/symfony-console-completion)
+
+[![Latest Stable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/stable.png)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![Total Downloads](https://poser.pugx.org/stecman/symfony-console-completion/downloads.png)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![Latest Unstable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/unstable.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![License](https://poser.pugx.org/stecman/symfony-console-completion/license.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
+
 This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
 
 Example of zero-config use with Composer:
@@ -26,14 +33,14 @@ If you don't need any custom completion behaviour, all you need to do is add the
   ```bash
   # BASH 4.x, ZSH
   source <([program] _completion --generate-hook)
-  
+
   # BASH 3.x, ZSH
   [program] _completion --generate-hook | source /dev/stdin
-  
+
   # BASH (any version)
   eval $([program] _completion --generate-hook)
   ```
-  
+
   By default this registers completion for the absolute path to you application. You can specify a command name to complete for instead using the `-p` option, which is useful if you're using an alias to run the program.
 
 4. Add the command from step 3 to your bash profile if you want the completion to apply automatically for all new terminal sessions.
@@ -68,8 +75,8 @@ class MyCompletionCommand extends CompletionCommand {
 ```
 
 ##### Command-specific argument completion with an array
-  
-```php  
+
+```php
 $this->handler->addHandler(
     new Completion(
         'walk',
