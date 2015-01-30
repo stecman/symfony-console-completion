@@ -1,6 +1,7 @@
 # BASH/ZSH auto-complete for Symfony Console applications
 
 [![Build Status](https://travis-ci.org/stecman/symfony-console-completion.svg?branch=master)](https://travis-ci.org/stecman/symfony-console-completion)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/stecman/symfony-console-completion/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/stecman/symfony-console-completion/?branch=master)
 
 [![Latest Stable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/stable.png)](https://packagist.org/packages/stecman/symfony-console-completion)
 [![Total Downloads](https://poser.pugx.org/stecman/symfony-console-completion/downloads.png)](https://packagist.org/packages/stecman/symfony-console-completion)
