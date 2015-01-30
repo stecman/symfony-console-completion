@@ -48,14 +48,15 @@ class Completion implements CompletionInterface
 
     /**
      * Return the result of the completion helper
-     * @return array|mixed
+     * @return array
      */
     public function run()
     {
         if ($this->isCallable()) {
             return call_user_func($this->completion);
         }
-        return (array) $this->completion;
+
+        return $this->completion;
     }
 
     /**
