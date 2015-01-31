@@ -1,7 +1,7 @@
 {
     "name": "stecman/symfony-console-completion",
     "description": "Automatic BASH completion for Symfony Console Component based applications.",
-	"license": "MIT",
+    "license": "MIT",
     "authors": [
         {
             "name": "Stephen Holdaway",
@@ -18,6 +18,11 @@
     "autoload": {
         "psr-4": {
             "Stecman\\Component\\Symfony\\Console\\BashCompletion\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.4.x-dev"
         }
     }
 }
