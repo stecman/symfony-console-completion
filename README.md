@@ -96,10 +96,10 @@ class MyCompletionCommand extends CompletionCommand
 {
     protected function configureCompletion(CompletionHandler $handler)
     {
-        $handler->addHandlers(array(
+        $handler->addHandlers([
             // Instances of Completion go here.
             // See below for examples.
-        ));
+        ]);
     }
 }
 ```
@@ -119,12 +119,12 @@ $handler->addHandler(
         'walk',                    // match command name
         'direction',               // match argument/option name
         Completion::TYPE_ARGUMENT, // match definition type (option/argument)
-        array(                     // array or callback for results
+        [                     // array or callback for results
             'north',
             'east',
             'south',
             'west'
-        )
+        ]
     )
 );
 ```
@@ -173,11 +173,11 @@ $handler->addHandler(
         Completion::ALL_COMMANDS,
         'weather',
         Completion::TYPE_OPTION,
-        array(
+        [
             'raining',
             'sunny',
             'everything is on fire!'
-        )
+        ]
     )
 );
 ```
