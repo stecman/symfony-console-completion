@@ -30,7 +30,7 @@ class CompletionHandler
 
     /**
      * Array of completion helpers.
-     * @var Completion[]
+     * @var CompletionInterface[]
      */
     protected $helpers = array();
 
@@ -54,13 +54,16 @@ class CompletionHandler
     }
 
     /**
-     * @param Completion[] $array
+     * @param CompletionInterface[] $array
      */
     public function addHandlers(array $array)
     {
         $this->helpers = array_merge($this->helpers, $array);
     }
 
+    /**
+     * @param CompletionInterface $helper
+     */
     public function addHandler(CompletionInterface $helper)
     {
         $this->helpers[] = $helper;

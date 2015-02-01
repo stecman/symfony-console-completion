@@ -8,7 +8,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/unstable.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
 [![License](https://poser.pugx.org/stecman/symfony-console-completion/license.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
 
-This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. Custom completion behaviour can be added for option and argument values by name.
+This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. User code can define custom completion behaviour for arugment and option values.
 
 Example of zero-config use with Composer:
 
@@ -16,10 +16,11 @@ Example of zero-config use with Composer:
 
 ## Zero-config use
 
-If you don't need any custom completion behaviour, all you need to do is add the completion command to your application's available commands:
+If you don't need any custom completion behaviour, you can simply add the completion command to your application:
 
-1. Install `stecman/symfony-console-completion` through composer
+1. Install `stecman/symfony-console-completion` using composer
 2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
+
   ```php
   protected function getDefaultCommands()
   {
@@ -42,48 +43,83 @@ If you don't need any custom completion behaviour, all you need to do is add the
   eval $([program] _completion --generate-hook)
   ```
 
-  By default this registers completion for the absolute path to you application. You can specify a command name to complete for instead using the `-p` option, which is useful if you're using an alias to run the program.
+  By default this registers completion for the absolute path to you application, which will work if the program on accessible on your PATH. You can specify a program name to complete for instead using the `--program` option, which is required if you're using an alias to run the program.
 
-4. Add the command from step 3 to your bash profile if you want the completion to apply automatically for all new terminal sessions.
+4. If you want the completion to apply automatically for all new shell sessions, add the command from step 3 to your shell's profile (eg. `~/.bash_profile` or `~/.zshrc`)
 
-Note: If `[program]` is an alias you will need to specify the aliased name with the `-p|--program` option, as completion may not work otherwise: `_completion --generate-hook -p [myalias]`.
-
-Second note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly specify the shell type with the `--shell-type` option.
-
-### How it works
-
-The `--generate-hook` option of `CompletionCommand` generates a few lines of BASH that, when executed, register your application as a completion handler for your itself in the current shell session. When you request completion for your program (by pressing tab), the completion command on your application is run with no arguments: `[program] _completion`. This uses environment variables set by BASH to get the current command line contents and cursor position, then completes from your console command definitions.
+Note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly specify the shell type with the `--shell-type` option.
 
 
-## Custom completion
+## How it works
 
-Custom completion behaviour for argument and option values can be added by sub-classing `CompletionCommand`.
+The `--generate-hook` option of `CompletionCommand` generates a small shell script that registers a function with your shell's completion system to act as a bridge to the completion command in your application. When you request completion for your program (by pressing tab with your program name as the first word on the command line), the bridge function is run; passing the current command line contents and cursor position to `[program] _completion`, and feeding the resulting output back to the shell.
 
-The following examples are for an application with this signature: `myapp (walk|run) [-w|--weather=""] direction`
+
+## Defining value completions
+
+By default, no completion results will be returned for option and argument values. There are two ways of defining custom completion values for values: extend `CompletionCommand`, or implement `CompletionAwareInterface` interface.
+
+### Implementing `CompletionAwareInterface`
+
+`CompletionAwareInterface` allows a command to be responsible for completing its own option and argument values. When completion is run with a command name specified (eg. `myapp mycommand ...`) and the named command implements this interface, the appropriate interface method is called automatically:
 
 ```php
-class MyCompletionCommand extends CompletionCommand {
-
-    protected function runCompletion()
+class MyCommand extends Command impements CompletionAwareInterface
+{
+    ...
+    
+    public function completeOptionValues($optionName, CompletionContext $context)
     {
-        $this->handler->addHandlers(array(
-            // Instances of Completion go here.
-            // See below for examples.
-        ));
-        return $this->handler->runCompletion();
+        if ($optionName == 'some-option') {
+            return ['myvalue', 'other-value', 'word'];
+        }
+    }
+
+    public function completeArgumentValues($argumentName, CompletionContext $context)
+    {
+        if ($argumentName == 'package') {
+            return $this->getPackageNamesFromDatabase($context->getCurrentWord());
+        }
     }
 }
 ```
 
+This method of generating completions doesn't support use of `CompletionInterface` implementations at the moment, which make it easy to share completion behaviour between commands. To use this functionality, you'll need write your value completions by extending `CompletionCommand`.
+
+
+### Extending `CompletionCommand`
+
+Argument and option value completions can also be defined by extending `CompletionCommand` and overriding the `configureCompletion` method:
+
+```php
+class MyCompletionCommand extends CompletionCommand
+{
+    protected function configureCompletion(CompletionHandler $handler)
+    {
+        $handler->addHandlers(array(
+            // Instances of Completion go here.
+            // See below for examples.
+        ));
+    }
+}
+```
+
+#### The `Completion` class
+
+The following snippets demonstrate how the `Completion` class works with `CompletionHandler`, and some possible configurations. The examples are for an application with the signature:
+
+    `myapp (walk|run) [-w|--weather=""] direction`
+
+
 ##### Command-specific argument completion with an array
 
 ```php
-$this->handler->addHandler(
+$handler->addHandler(
     new Completion(
-        'walk',
-        'direction',
-        Completion::TYPE_ARGUMENT,
-        array(
+        'walk',                    // match command name
+        'direction',               // match argument/option name
+        Completion::TYPE_ARGUMENT, // match definition type (option/argument)
+        array(                     // array or callback for results
             'north',
             'east',
             'south',
@@ -93,12 +129,14 @@ $this->handler->addHandler(
 );
 ```
 
-This will complete for this:
+This will complete the `direction` argument for this:
+
 ```bash
 $ myapp walk [tab]
 ```
 
 but not this:
+
 ```bash
 $ myapp run [tab]
 ```
@@ -106,21 +144,20 @@ $ myapp run [tab]
 ##### Non-command-specific (global) argument completion with a function
 
 ```php
-$this->handler->addHandler(
-    Completion::makeGlobalHandler(
+$handler->addHandler(
+    new Completion(
+        Completion::ALL_COMMANDS,
         'direction',
         Completion::TYPE_ARGUMENT,
         function() {
-            $values = array();
-
-            // Fill the array up with stuff
-            return $values;
+            return range(1, 10);
         }
     )
 );
 ```
 
-This will complete for both commands:
+This will complete the `direction` argument for both commands:
+
 ```bash
 $ myapp walk [tab]
 $ myapp run [tab]
@@ -128,11 +165,12 @@ $ myapp run [tab]
 
 ##### Option completion
 
-Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type..
+Option handlers work the same way as argument handlers, except you use `Completion::TYPE_OPTION` for the type.
 
 ```php
-$this->handler->addHandler(
-    Completion::makeGlobalHandler(
+$handler->addHandler(
+    new Completion(
+        Completion::ALL_COMMANDS,
         'weather',
         Completion::TYPE_OPTION,
         array(
@@ -144,10 +182,30 @@ $this->handler->addHandler(
 );
 ```
 
-### Example: completing references from a Git repository
+##### Completing the for both arguments and options
+
+To have a completion run for both options and arguments matching the specified name, you can use the type `Completion::ALL_TYPES`. Combining this with `Completion::ALL_COMMANDS` and consistent option/argument naming throughout your application, it's easy to share completion behaviour between commands, options and arguments:
 
 ```php
-Completion::makeGlobalHandler(
+$handler->addHandler(
+    new Completion(
+        Completion::ALL_COMMANDS,
+        'pacakge',
+        Completion::ALL_TYPES,
+        function() {
+            // ...
+        }
+    )
+);
+```
+
+## Example completions
+
+### Completing references from a Git repository
+
+```php
+new Completion(
+    Completion::ALL_COMMANDS,
     'ref',
     Completion::TYPE_OPTION,
     function () {
@@ -159,9 +217,9 @@ Completion::makeGlobalHandler(
 )
 ```
 
-### Example: completing filesystem paths
+### Completing filesystem paths
 
-This library provides the completion class `ShellPathCompletion` which defers path completion to the shell's built-in path completion behaviour rather than implementing it in PHP.
+This library provides the completion implementation `ShellPathCompletion` which defers path completion to the shell's built-in path completion behaviour rather than implementing it in PHP.
 
 ```php
 new Completion\ShellPathCompletion(
@@ -176,3 +234,4 @@ new Completion\ShellPathCompletion(
 
 * Option shortcuts are not offered as completion options, however requesting completion (ie. pressing tab) on a valid option shortcut will complete.
 * Completion is not implemented for the `--option="value"` style of passing a value to an option, however `--option value` and `--option "value"` work and are functionally identical.
+* Value completion is always run for options marked as `InputOption::VALUE_OPTIONAL` since there is currently no way to determine the desired behaviour from the command line contents (ie. skip the optional value or complete for it)

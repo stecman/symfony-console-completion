@@ -74,13 +74,30 @@ END
         }
     }
 
+    /**
+     * Run the completion handler and return a filtered list of results
+     *
+     * @return string[]
+     */
     protected function runCompletion()
     {
+        $this->configureCompletion($this->handler);
         return $this->handler->runCompletion();
     }
 
     /**
+     * Configure the CompletionHandler instance before it is run
+     *
+     * @param CompletionHandler $handler
+     */
+    protected function configureCompletion(CompletionHandler $handler)
+    {
+         // Override this method to configure custom value completions
+    }
+
+    /**
      * Determine the shell type for use with HookFactory
+     *
      * @return string
      */
     protected function getShellType()

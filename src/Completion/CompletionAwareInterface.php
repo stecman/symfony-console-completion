@@ -8,21 +8,19 @@ interface CompletionAwareInterface
 {
 
     /**
-     * Returns possible option values.
+     * Return possible values for the named option
      *
-     * @param string            $optionName Option name.
-     * @param CompletionContext $context    Completion context.
-     *
+     * @param string $optionName
+     * @param CompletionContext $context
      * @return array
      */
     public function completeOptionValues($optionName, CompletionContext $context);
 
     /**
-     * Returns possible argument values.
+     * Return possible values for the named argument
      *
-     * @param string            $argumentName Argument name.
-     * @param CompletionContext $context      Completion context.
-     *
+     * @param string $argumentName
+     * @param CompletionContext $context
      * @return array
      */
     public function completeArgumentValues($argumentName, CompletionContext $context);
