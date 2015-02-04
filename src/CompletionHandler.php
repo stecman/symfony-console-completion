@@ -4,8 +4,8 @@ namespace Stecman\Component\Symfony\Console\BashCompletion;
 
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
-use Symfony\Component\Console\Application as BaseApplication;
-use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,7 +19,7 @@ class CompletionHandler
     protected $application;
 
     /**
-     * @var BaseCommand
+     * @var Command
      */
     protected $command;
 
@@ -34,7 +34,7 @@ class CompletionHandler
      */
     protected $helpers = array();
 
-    public function __construct(BaseApplication $application, CompletionContext $context = null)
+    public function __construct(Application $application, CompletionContext $context = null)
     {
         $this->application = $application;
         $this->context = $context;
@@ -92,7 +92,7 @@ class CompletionHandler
             'completeForOptionShortcutValues',
             'completeForOptions',
             'completeForCommandName',
-            'completeForCommandArgs'
+            'completeForCommandArguments'
         );
 
         foreach ($process as $methodName) {
@@ -109,6 +109,7 @@ class CompletionHandler
 
     /**
      * Get an InputInterface representation of the completion context
+     *
      * @return ArrayInput
      */
     public function getInput()
@@ -253,33 +254,23 @@ class CompletionHandler
      * @see Symfony\Component\Console\Input\InputArgument
      * @return array|false
      */
-    protected function completeForCommandArgs()
+    protected function completeForCommandArguments()
     {
         if (strpos($this->context->getCurrentWord(), '-') !== 0) {
             if ($this->command) {
-                return $this->formatArguments($this->command);
-            }
-        }
+                $argWords = $this->mapArgumentsToWords($this->command->getDefinition()->getArguments());
+                $wordIndex = $this->context->getWordIndex();
 
-        return false;
-    }
+                if (isset($argWords[$wordIndex])) {
+                    $name = $argWords[$wordIndex];
 
-    /**
-     * @param BaseCommand $cmd
-     * @return array|false
-     */
-    protected function formatArguments(BaseCommand $cmd)
-    {
-        $argWords = $this->mapArgumentsToWords($cmd->getDefinition()->getArguments());
+                    if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
+                        return $helper->run();
+                    }
 
-        foreach ($argWords as $name => $wordNum) {
-            if ($this->context->getWordIndex() == $wordNum) {
-                if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
-                    return $helper->run();
-                }
-
-                if ($this->command instanceof CompletionAwareInterface) {
-                    return $this->command->completeArgumentValues($name, $this->context);
+                    if ($this->command instanceof CompletionAwareInterface) {
+                        return $this->command->completeArgumentValues($name, $this->context);
+                    }
                 }
             }
         }
@@ -347,17 +338,7 @@ class CompletionHandler
         $argumentNames = array_keys($argumentDefinitions);
 
         // Build a list of option values to filter out
-        $optionsWithArgs = array();
-
-        foreach ($this->getAllOptions() as $option) {
-            if ($option->isValueRequired()) {
-                $optionsWithArgs[] = '--' . $option->getName();
-
-                if ($option->getShortcut()) {
-                    $optionsWithArgs[] = '-' . $option->getShortcut();
-                }
-            }
-        }
+        $optionsWithArgs = $this->getOptionWordsWithValues();
 
         foreach ($this->context->getWords() as $wordIndex => $word) {
             // Skip program name, command name, options, and option values
@@ -372,7 +353,7 @@ class CompletionHandler
 
             // If argument n exists, pair that argument's name with the current word
             if (isset($argumentNames[$argumentNumber])) {
-                $argumentPositions[$argumentNames[$argumentNumber]] = $wordIndex;
+                $argumentPositions[$wordIndex] = $argumentNames[$argumentNumber];
             }
 
             $argumentNumber++;
@@ -382,8 +363,30 @@ class CompletionHandler
     }
 
     /**
-     * Filter a list of results to those starting with the current word
-     * The resulting list is the correct words to put in COMPREPLY.
+     * Build a list of option words/flags that will have a value after them
+     * Options are returned in the format they appear as on the command line.
+     *
+     * @return string[] - eg. ['--myoption', '-m', ... ]
+     */
+    protected function getOptionWordsWithValues()
+    {
+        $strings = array();
+
+        foreach ($this->getAllOptions() as $option) {
+            if ($option->isValueRequired()) {
+                $strings[] = '--' . $option->getName();
+
+                if ($option->getShortcut()) {
+                    $strings[] = '-' . $option->getShortcut();
+                }
+            }
+        }
+
+        return $strings;
+    }
+
+    /**
+     * Filter out results that don't match the current word on the command line
      *
      * @param string[] $array
      * @return string[]
