@@ -10,11 +10,21 @@ class EnvironmentCompletionContext extends CompletionContext
      */
     public function __construct()
     {
-        $this->commandLine = getenv('COMP_LINE');
-        $this->charIndex = intval(getenv('COMP_POINT'));
+        $this->commandLine = getenv('CMDLINE_CONTENTS');
+        $this->charIndex = intval(getenv('CMDLINE_CURSOR_INDEX'));
 
         if ($this->commandLine === false) {
-            throw new \RuntimeException('Failed to configure from environment; Environment var COMP_LINE not set.');
+            $message = 'Failed to configure from environment; Environment var CMDLINE_CONTENTS not set.';
+
+            if (getenv('COMP_LINE')) {
+                $message .= "\n\nYou appear to be attempting completion using an out-dated hook. If you've just updated,"
+                            . " you probably need to reinitialise the completion shell hook by reloading your shell"
+                            . " profile or starting a new shell session. If you are using a hard-coded (rather than generated)"
+                            . " hook, you will need to update that function with the new environment variable names."
+                            . "\n\nSee here for details: https://github.com/stecman/symfony-console-completion/issues/31";
+            }
+
+            throw new \RuntimeException($message);
         }
     }
 
@@ -25,10 +35,10 @@ class EnvironmentCompletionContext extends CompletionContext
      */
     public function useWordBreaksFromEnvironment()
     {
-        $breaks = getenv('COMP_WORDBREAKS');
+        $breaks = getenv('CMDLINE_WORDBREAKS');
 
         if (!$breaks) {
-            throw new \RuntimeException('Failed to read word breaks from environment; Environment var COMP_WORDBREAKS not set');
+            throw new \RuntimeException('Failed to read word breaks from environment; Environment var CMDLINE_WORDBREAKS not set');
         }
 
         $this->wordBreaks = $breaks;

@@ -30,7 +30,15 @@ final class HookFactory
         'bash' => <<<'END'
 # BASH completion for %%program_path%%
 function %%function_name%% {
-    export COMP_LINE COMP_POINT COMP_WORDBREAKS;
+
+    # Copy BASH's completion variables to the ones the completion command expects
+    # These line up exactly as the library was originally designed for BASH
+    local CMDLINE_CONTENTS="$COMP_LINE"
+    local CMDLINE_CURSOR_INDEX="$COMP_POINT"
+    local CMDLINE_WORDBREAKS="$COMP_WORDBREAKS";
+
+    export CMDLINE_CONTENTS CMDLINE_CURSOR_INDEX CMDLINE_WORDBREAKS
+
     local RESULT STATUS;
 
     RESULT="$(%%completion_command%%)";
@@ -63,15 +71,11 @@ END
         , 'zsh' => <<<'END'
 # ZSH completion for %%program_path%%
 function %%function_name%% {
-    # Emulate BASH's command line contents variable
-    local -x COMP_LINE="$words"
-
-    # Emulate BASH's cursor position variable, setting it to the end of the current word.
-    local -x COMP_POINT
-    (( COMP_POINT = ${#${(j. .)words[1,CURRENT]}} ))
+    local -x CMDLINE_CONTENTS="$words"
+    local -x CMDLINE_CURSOR_INDEX
+    (( CMDLINE_CURSOR_INDEX = ${#${(j. .)words[1,CURRENT]}} ))
 
     local RESULT STATUS
-    local -x COMPOSER_CWD=`pwd`
     RESULT=("${(@f)$( %%completion_command%% )}")
     STATUS=$?;
 
