@@ -184,6 +184,7 @@ class CompletionContext
     public function setWordBreaks($charList)
     {
         $this->wordBreaks = $charList;
+        $this->reset();
     }
 
     /**
