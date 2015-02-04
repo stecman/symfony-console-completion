@@ -127,7 +127,7 @@ class CompletionHandler
     {
         $word = $this->context->getCurrentWord();
 
-        if ($this->command && strpos($word, '-') === 0) {
+        if (strpos($word, '-') === 0) {
             $options = array();
 
             foreach ($this->getAllOptions() as $opt) {
@@ -148,8 +148,10 @@ class CompletionHandler
     {
         $word = $this->context->getCurrentWord();
 
-        if ($this->command && strpos($word, '-') === 0 && strlen($word) == 2) {
-            if ($this->command->getDefinition()->hasShortcut(substr($word, 1))) {
+        if (strpos($word, '-') === 0 && strlen($word) == 2) {
+            $definition = $this->command ? $this->command->getDefinition() : $this->application->getDefinition();
+
+            if ($definition->hasShortcut(substr($word, 1))) {
                 return array($word);
             }
         }
@@ -378,12 +380,16 @@ class CompletionHandler
     }
 
     /**
-     * Returns list of all options.
+     * Get the combined options of the application and entered command
      *
      * @return InputOption[]
      */
     protected function getAllOptions()
     {
+        if (!$this->command) {
+            return $this->application->getDefinition()->getOptions();
+        }
+
         return array_merge(
             $this->command->getDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()
