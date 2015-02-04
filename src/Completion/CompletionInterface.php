@@ -14,7 +14,7 @@ interface CompletionInterface
     const TYPE_ARGUMENT = 'argument';
 
     /**
-     * Return the type of input completion should be run for
+     * Return the type of input (option/argument) completion should be run for
      *
      * @see \Symfony\Component\Console\Command\Command::addArgument
      * @see \Symfony\Component\Console\Command\Command::addOption
@@ -42,9 +42,7 @@ interface CompletionInterface
     /**
      * Execute the completion
      *
-     * Returns an array of possible completions or null to indicate that no completions are available.
-     *
-     * @return array
+     * @return string[] - an array of possible completion values
      */
     public function run();
 }

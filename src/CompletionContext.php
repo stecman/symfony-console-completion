@@ -11,43 +11,61 @@ namespace Stecman\Component\Symfony\Console\BashCompletion;
 class CompletionContext
 {
     /**
-     * COMP_WORDS
-     * An array consisting of the individual words in the current command line.
-     * @var array|null
-     */
-    protected $words = null;
-
-    /**
-     * COMP_CWORD
-     * The index in COMP_WORDS of the word containing the current cursor position.
-     * @var int
-     */
-    protected $wordIndex = null;
-
-    /**
-     * COMP_LINE
-     * The current contents of the command line.
+     * The current contents of the command line as a single string
+     *
+     * Bash equivalent: COMP_LINE
+     *
      * @var string
      */
     protected $commandLine;
 
     /**
-     * COMP_POINT
-     * The index of the current cursor position relative to the beginning of the
-     * current command. If the current cursor position is at the end of the current
-     * command, the value of this variable is equal to the length of COMP_LINE.
+     * The index of the user's cursor relative to the start of the command line.
+     *
+     * If the current cursor position is at the end of the current command,
+     * the value of this variable is equal to the length of $this->commandLine
+     *
+     * Bash equivalent: COMP_POINT
+     *
      * @var int
      */
     protected $charIndex = 0;
 
     /**
-     * COMP_WORDBREAKS
-     * Characters that $commandLine should be split on to get a list of words in a command
+     * An array containing the individual words in the current command line.
+     *
+     * This is not set until $this->splitCommand() is called, when it is populated by
+     * $commandLine exploded by $wordBreaks
+     *
+     * Bash equivalent: COMP_WORDS
+     *
+     * @var array|null
+     */
+    protected $words = null;
+
+    /**
+     * The index in $this->words containing the word at the current cursor position.
+     *
+     * This is not set until $this->splitCommand() is called.
+     *
+     * Bash equivalent: COMP_CWORD
+     *
+     * @var int|null
+     */
+    protected $wordIndex = null;
+
+    /**
+     * Characters that $this->commandLine should be split on to get a list of individual words
+     *
+     * Bash equivalent: COMP_WORDBREAKS
+     *
      * @var string
      */
     protected $wordBreaks = "'\"()= \t\n";
 
     /**
+     * Set the whole contents of the command line as a string
+     *
      * @param string $commandLine
      */
     public function setCommandLine($commandLine)
@@ -57,6 +75,8 @@ class CompletionContext
     }
 
     /**
+     * Return the current command line verbatim as a string
+     *
      * @return string
      */
     public function getCommandLine()
@@ -64,6 +84,14 @@ class CompletionContext
         return $this->commandLine;
     }
 
+    /**
+     * Return the word from the command line that the cursor is currently in
+     *
+     * Most of the time this will be a partial word. If the cursor has a space before it,
+     * this will return an empty string, indicating a new word.
+     *
+     * @return string
+     */
     public function getCurrentWord()
     {
         if (isset($this->words[$this->wordIndex])) {
@@ -73,6 +101,13 @@ class CompletionContext
         return '';
     }
 
+    /**
+     * Return a word by index from the command line
+     *
+     * @see $words, $wordBreaks
+     * @param int $index
+     * @return string
+     */
     public function getWordAtIndex($index)
     {
         if (isset($this->words[$index])) {
@@ -83,6 +118,9 @@ class CompletionContext
     }
 
     /**
+     * Get the contents of the command line, exploded into words based on the configured word break characters
+     *
+     * @see $wordBreaks, setWordBreaks
      * @return array
      */
     public function getWords()
@@ -95,6 +133,9 @@ class CompletionContext
     }
 
     /**
+     * Get the index of the word the cursor is currently in
+     *
+     * @see getWords, getCurrentWord
      * @return int
      */
     public function getWordIndex()
@@ -107,6 +148,12 @@ class CompletionContext
     }
 
     /**
+     * Get the character index of the user's cursor on the command line
+     *
+     * This is in the context of the full command line string, so includes word break characters.
+     * Note that some shells can only provide an approximation for character index. Under ZSH for
+     * example, this will always be the character at the start of the current word.
+     *
      * @return int
      */
     public function getCharIndex()
@@ -115,7 +162,9 @@ class CompletionContext
     }
 
     /**
-     * @param $index
+     * Set the cursor position as a character index relative to the start of the command line
+     *
+     * @param int $index
      */
     public function setCharIndex($index)
     {
@@ -124,7 +173,13 @@ class CompletionContext
     }
 
     /**
-     * @param string $charList
+     * Set characters to use as split points when breaking the command line into words
+     *
+     * This defaults to a sane value based on BASH's word break characters and shouldn't
+     * need to be changed unless your completions contain the default word break characters.
+     *
+     * @see wordBreaks
+     * @param string $charList - a single string containing all of the characters to break words on
      */
     public function setWordBreaks($charList)
     {
@@ -132,8 +187,9 @@ class CompletionContext
     }
 
     /**
-     * Split commandLine into words using wordBreaks
-     * @return array
+     * Split the command line into words using the configured word break characters
+     *
+     * @return string[]
      */
     protected function splitCommand()
     {

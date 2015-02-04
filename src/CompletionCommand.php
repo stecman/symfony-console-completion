@@ -77,6 +77,8 @@ END
     /**
      * Run the completion handler and return a filtered list of results
      *
+     * @deprecated - This will be removed in 1.0.0 in favour of CompletionCommand::configureCompletion
+     *
      * @return string[]
      */
     protected function runCompletion()

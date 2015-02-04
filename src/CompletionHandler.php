@@ -70,7 +70,8 @@ class CompletionHandler
     }
 
     /**
-     * Do the actual completion, returning items delimited by spaces
+     * Do the actual completion, returning an array of strings to provide to the parent shell's completion system
+     *
      * @throws \RuntimeException
      * @return string[]
      */
@@ -121,6 +122,8 @@ class CompletionHandler
     }
 
     /**
+     * Attempt to complete the current word as a long-form option (--my-option)
+     *
      * @return array|false
      */
     protected function completeForOptions()
@@ -141,7 +144,10 @@ class CompletionHandler
     }
 
     /**
-     * Complete an option shortcut if it exists, but don't offer a list of shortcuts
+     * Attempt to complete the current word as an option shortcut.
+     *
+     * If the shortcut exists it will be completed, but a list of possible shortcuts is never returned for completion.
+     *
      * @return array|false
      */
     protected function completeForOptionShortcuts()
@@ -160,6 +166,8 @@ class CompletionHandler
     }
 
     /**
+     * Attempt to complete the current word as the value of an option shortcut
+     *
      * @return array|false
      */
     protected function completeForOptionShortcutValues()
@@ -189,6 +197,8 @@ class CompletionHandler
     }
 
     /**
+     * Attemp to complete the current word as the value of a long-form option
+     *
      * @return array|false
      */
     protected function completeForOptionValues()
@@ -217,7 +227,8 @@ class CompletionHandler
     }
 
     /**
-     * If a command is not set, list available commands
+     * Attempt to complete the current word as a command name
+     *
      * @return array|false
      */
     protected function completeForCommandName()
@@ -237,6 +248,9 @@ class CompletionHandler
     }
 
     /**
+     * Attempt to complete the current word as a command argument value
+     *
+     * @see Symfony\Component\Console\Input\InputArgument
      * @return array|false
      */
     protected function completeForCommandArgs()
@@ -274,9 +288,11 @@ class CompletionHandler
     }
 
     /**
-     * @param $name
+     * Find a CompletionInterface that matches the current command, target name, and target type
+     *
+     * @param string $name
      * @param string $type
-     * @return CompletionInterface
+     * @return CompletionInterface|null
      */
     protected function getCompletionHelper($name, $type)
     {
@@ -296,6 +312,8 @@ class CompletionHandler
     }
 
     /**
+     * Complete the value for the given option if a value completion is availble
+     *
      * @param InputOption $option
      * @return array|false
      */
@@ -313,7 +331,7 @@ class CompletionHandler
     }
 
     /**
-     * Step through the command line to determine which words positions represent which argument values
+     * Step through the command line to determine which word positions represent which argument values
      *
      * The word indexes of argument values are found by eliminating words that are known to not be arguments (options,
      * option values, and command names). Any word that doesn't match for elimination is assumed to be an argument value,

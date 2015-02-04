@@ -54,7 +54,7 @@ class ShellPathCompletion implements CompletionInterface
     }
 
     /**
-     * Exit with the status code configured to defer completion to the shell
+     * Exit with a status code configured to defer completion to the shell
      *
      * @see \Stecman\Component\Symfony\Console\BashCompletion\HookFactory::$hooks
      */
