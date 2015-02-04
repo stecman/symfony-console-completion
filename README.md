@@ -8,7 +8,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/unstable.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
 [![License](https://poser.pugx.org/stecman/symfony-console-completion/license.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
 
-This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. User code can define custom completion behaviour for arugment and option values.
+This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. User code can define custom completion behaviour for argument and option values.
 
 Example of zero-config use with Composer:
 
@@ -33,10 +33,10 @@ If you don't need any custom completion behaviour, you can simply add the comple
 3. Register completion for your application by running one of the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
 
   ```bash
-  # BASH 4.x, ZSH
+  # BASH ~4.x, ZSH
   source <([program] _completion --generate-hook)
 
-  # BASH 3.x, ZSH
+  # BASH ~3.x, ZSH
   [program] _completion --generate-hook | source /dev/stdin
 
   # BASH (any version)
@@ -52,19 +52,19 @@ Note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` e
 
 ## How it works
 
-The `--generate-hook` option of `CompletionCommand` generates a small shell script that registers a function with your shell's completion system to act as a bridge to the completion command in your application. When you request completion for your program (by pressing tab with your program name as the first word on the command line), the bridge function is run; passing the current command line contents and cursor position to `[program] _completion`, and feeding the resulting output back to the shell.
+The `--generate-hook` option of `CompletionCommand` generates a small shell script that registers a function with your shell's completion system to act as a bridge between the shell and the completion command in your application. When you request completion for your program (by pressing tab with your program name as the first word on the command line), the bridge function is run; passing the current command line contents and cursor position to `[program] _completion`, and feeding the resulting output back to the shell.
 
 
 ## Defining value completions
 
-By default, no completion results will be returned for option and argument values. There are two ways of defining custom completion values for values: extend `CompletionCommand`, or implement `CompletionAwareInterface` interface.
+By default, no completion results will be returned for option and argument values. There are two ways of defining custom completion values for values: extend `CompletionCommand`, or implement `CompletionAwareInterface`.
 
 ### Implementing `CompletionAwareInterface`
 
 `CompletionAwareInterface` allows a command to be responsible for completing its own option and argument values. When completion is run with a command name specified (eg. `myapp mycommand ...`) and the named command implements this interface, the appropriate interface method is called automatically:
 
 ```php
-class MyCommand extends Command impements CompletionAwareInterface
+class MyCommand extends Command implements CompletionAwareInterface
 {
     ...
     
@@ -219,7 +219,7 @@ new Completion(
 
 ### Completing filesystem paths
 
-This library provides the completion implementation `ShellPathCompletion` which defers path completion to the shell's built-in path completion behaviour rather than implementing it in PHP.
+This library provides the completion implementation `ShellPathCompletion` which defers path completion to the shell's built-in path completion behaviour rather than implementing it in PHP, so that users get the path completion behaviour they expect from their shell.
 
 ```php
 new Completion\ShellPathCompletion(
