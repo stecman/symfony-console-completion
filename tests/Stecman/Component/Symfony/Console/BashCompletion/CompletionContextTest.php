@@ -55,8 +55,8 @@ class CompletionContextTest extends \PHPUnit_Framework_TestCase
 
     public function testConfigureFromEnvironment()
     {
-        putenv("COMP_LINE=beam up li");
-        putenv('COMP_POINT=10');
+        putenv("CMDLINE_CONTENTS=beam up li");
+        putenv('CMDLINE_CURSOR_INDEX=10');
 
         $context = new EnvironmentCompletionContext();
 
