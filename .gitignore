@@ -2,3 +2,4 @@ vendor
 .idea
 /build/
 phpunit.xml
+/composer.lock

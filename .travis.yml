@@ -11,7 +11,7 @@ before_install:
 
 install:
   - composer self-update
-  - composer install --dev --prefer-dist
+  - composer update
 
 script:
   - phpunit tests
