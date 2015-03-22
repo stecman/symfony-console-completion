@@ -48,6 +48,12 @@ END
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'Set the shell type (zsh or bash). Otherwise this is determined automatically.'
+            )
+            ->addOption(
+                'complete-program',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Path of program that will resolve completion. Otherwise this is determined automatically.'
             );
     }
 
@@ -58,7 +64,7 @@ END
 
         if ($input->getOption('generate-hook')) {
             global $argv;
-            $program = $argv[0];
+            $program = $input->getOption('complete-program') ?: $argv[0];
 
             $factory = new HookFactory();
             $hook = $factory->generateHook(
