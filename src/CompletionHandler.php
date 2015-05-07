@@ -82,8 +82,11 @@ class CompletionHandler
         }
 
         $cmdName = $this->getInput()->getFirstArgument();
-        if ($this->application->has($cmdName)) {
-            $this->command = $this->application->get($cmdName);
+
+        try {
+            $this->command = $this->application->find($cmdName);
+        } catch (\InvalidArgumentException $e) {
+            // Exception thrown, when multiple or none commands are found.
         }
 
         $process = array(
