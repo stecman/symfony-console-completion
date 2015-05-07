@@ -131,4 +131,16 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
             ),
         );
     }
+
+    public function testShortCommandMatched()
+    {
+        $handler = $this->createHandler('app w:n --deploy');
+        $this->assertEquals(array('--deploy:jazz-hands'), $this->getTerms($handler->runCompletion()));
+    }
+
+    public function testShortCommandNotMatched()
+    {
+        $handler = $this->createHandler('app w --deploy');
+        $this->assertEquals(array(), $this->getTerms($handler->runCompletion()));
+    }
 }
