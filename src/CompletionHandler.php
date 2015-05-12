@@ -177,7 +177,7 @@ class CompletionHandler
         $word = $this->context->getCurrentWord();
 
         if (strpos($word, '-') === 0 && strlen($word) == 2) {
-            $definition = $this->command ? $this->command->getDefinition() : $this->application->getDefinition();
+            $definition = $this->command ? $this->command->getNativeDefinition() : $this->application->getDefinition();
 
             if ($definition->hasShortcut(substr($word, 1))) {
                 return array($word);
@@ -202,7 +202,7 @@ class CompletionHandler
             // Complete short options
             if ($left[0] == '-' && strlen($left) == 2) {
                 $shortcut = substr($left, 1);
-                $def = $this->command->getDefinition();
+                $def = $this->command->getNativeDefinition();
 
                 if (!$def->hasShortcut($shortcut)) {
                     return false;
@@ -232,7 +232,7 @@ class CompletionHandler
 
             if (strpos($left, '--') === 0) {
                 $name = substr($left, 2);
-                $def = $this->command->getDefinition();
+                $def = $this->command->getNativeDefinition();
 
                 if (!$def->hasOption($name)) {
                     return false;
@@ -279,7 +279,7 @@ class CompletionHandler
     {
         if (strpos($this->context->getCurrentWord(), '-') !== 0) {
             if ($this->command) {
-                $argWords = $this->mapArgumentsToWords($this->command->getDefinition()->getArguments());
+                $argWords = $this->mapArgumentsToWords($this->command->getNativeDefinition()->getArguments());
                 $wordIndex = $this->context->getWordIndex();
 
                 if (isset($argWords[$wordIndex])) {
@@ -433,7 +433,7 @@ class CompletionHandler
         }
 
         return array_merge(
-            $this->command->getDefinition()->getOptions(),
+            $this->command->getNativeDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()
         );
     }
