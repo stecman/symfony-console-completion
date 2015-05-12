@@ -38,6 +38,24 @@ class CompletionHandler
     {
         $this->application = $application;
         $this->context = $context;
+
+        $this->addHandler(
+            new Completion(
+                'help',
+                'command_name',
+                Completion::TYPE_ARGUMENT,
+                array_keys($application->all())
+            )
+        );
+
+        $this->addHandler(
+            new Completion(
+                'list',
+                'namespace',
+                Completion::TYPE_ARGUMENT,
+                $application->getNamespaces()
+            )
+        );
     }
 
     public function setContext(CompletionContext $context)

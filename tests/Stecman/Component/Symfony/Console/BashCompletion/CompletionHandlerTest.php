@@ -143,4 +143,22 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $handler = $this->createHandler('app w --deploy');
         $this->assertEquals(array(), $this->getTerms($handler->runCompletion()));
     }
+
+    public function testHelpCommandCompletion()
+    {
+        $handler = $this->createHandler('app help ');
+        $this->assertEquals(
+            array('help', 'list', 'completion-aware', 'wave', 'walk:north'),
+            $this->getTerms($handler->runCompletion())
+        );
+    }
+
+    public function testListCommandCompletion()
+    {
+        $handler = $this->createHandler('app list ');
+        $this->assertEquals(
+            array('walk'),
+            $this->getTerms($handler->runCompletion())
+        );
+    }
 }
