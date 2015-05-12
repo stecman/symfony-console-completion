@@ -94,7 +94,7 @@ END
      */
     protected function configureCompletion(CompletionHandler $handler)
     {
-         // Override this method to configure custom value completions
+        // Override this method to configure custom value completions
     }
 
     /**
