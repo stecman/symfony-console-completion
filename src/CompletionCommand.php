@@ -53,10 +53,19 @@ END
             $program = $argv[0];
 
             $factory = new HookFactory();
+            $alias = $input->getOption('program');
+            $multiple = (bool)$input->getOption('multiple');
+
+            // When completing for multiple apps having absolute path in the alias doesn't make sense.
+            if (!$alias && $multiple) {
+                $alias = basename($program);
+            }
+
             $hook = $factory->generateHook(
                 $input->getOption('shell-type') ?: $this->getShellType(),
                 $program,
-                $input->getOption('program')
+                $alias,
+                $multiple
             );
 
             $output->write($hook, true);
@@ -117,6 +126,12 @@ END
                 'p',
                 InputOption::VALUE_REQUIRED,
                 "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
+            ),
+            new InputOption(
+                'multiple',
+                'm',
+                InputOption::VALUE_NONE,
+                "Generated hook can be used for multiple applications."
             ),
             new InputOption(
                 'shell-type',
