@@ -132,7 +132,7 @@ END
         $programName = $programName ?: $programPath;
 
         if ($multiple) {
-            $completionCommand = '${1} _completion';
+            $completionCommand = '$1 _completion';
         } else {
             $completionCommand = $programPath . ' _completion';
         }
