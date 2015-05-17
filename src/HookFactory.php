@@ -114,9 +114,11 @@ END
      * @param string $type - a key from self::$hooks
      * @param string $programPath
      * @param string $programName
+     * @param bool   $multiple
+     *
      * @return string
      */
-    public function generateHook($type, $programPath, $programName = null)
+    public function generateHook($type, $programPath, $programName = null, $multiple = false)
     {
         if (!isset(self::$hooks[$type])) {
             throw new \RuntimeException(sprintf(
@@ -129,6 +131,12 @@ END
         // Use the program path if an alias/name is not given
         $programName = $programName ?: $programPath;
 
+        if ($multiple) {
+            $completionCommand = '$1 _completion';
+        } else {
+            $completionCommand = $programPath . ' _completion';
+        }
+
         return str_replace(
             array(
                 '%%function_name%%',
@@ -140,7 +148,7 @@ END
                 $this->generateFunctionName($programPath, $programName),
                 $programName,
                 $programPath,
-                "$programPath _completion"
+                $completionCommand
             ),
             $this->stripComments(self::$hooks[$type])
         );
