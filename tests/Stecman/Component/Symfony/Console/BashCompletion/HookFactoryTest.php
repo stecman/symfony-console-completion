@@ -49,6 +49,7 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
             array('/path/to/myprogram', null, true),
             array('/path/to/myprogram', 'myprogram', false),
             array('/path/to/myprogram', 'myprogram', true),
+            array('/path/to/my-program', 'my-program', false)
         );
     }
 
