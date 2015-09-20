@@ -41,7 +41,7 @@ function %%function_name%% {
 
     local RESULT STATUS;
 
-    RESULT="$(%%completion_command%%)";
+    RESULT="$(%%completion_command%% </dev/null)";
     STATUS=$?;
 
     local cur;
