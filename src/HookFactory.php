@@ -64,7 +64,13 @@ function %%function_name%% {
     __ltrim_colon_completions "$cur";
 };
 
-complete -F %%function_name%% "%%program_name%%";
+COMP_FOUND=`type -t _get_comp_words_by_ref`
+
+if [ "$COMP_FOUND" == "function" ]; then
+    complete -F %%function_name%% "%%program_name%%";
+else
+    echo "The 'bash-completion' package not found."
+fi
 END
 
         // ZSH Hook
@@ -169,7 +175,7 @@ END
 
     /**
      * Make a string safe for use as a shell function name
-     * 
+     *
      * @param string $name
      * @return string
      */
