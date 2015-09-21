@@ -64,12 +64,11 @@ function %%function_name%% {
     __ltrim_colon_completions "$cur";
 };
 
-COMP_FOUND=`type -t _get_comp_words_by_ref`
-
-if [ "$COMP_FOUND" == "function" ]; then
+if [ "$(type -t _get_comp_words_by_ref)" == "function" ]; then
     complete -F %%function_name%% "%%program_name%%";
 else
-    echo "The 'bash-completion' package not found."
+    >&2 echo "Completion was not registered for %%program_name%%:";
+    >&2 echo "The 'bash-completion' package is required but doesn't appear to be installed.";
 fi
 END
 
