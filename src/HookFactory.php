@@ -44,7 +44,11 @@ function %%function_name%% {
     RESULT="$(%%completion_command%% </dev/null)";
     STATUS=$?;
 
-    local cur;
+    local cur mail_check_backup;
+
+    mail_check_backup=$MAILCHECK
+    MAILCHECK=-1
+
     _get_comp_words_by_ref -n : cur;
 
     # Check if shell provided path completion is requested
@@ -62,6 +66,8 @@ function %%function_name%% {
     COMPREPLY=(`compgen -W "$RESULT" -- $cur`);
 
     __ltrim_colon_completions "$cur";
+
+    MAILCHECK=mail_check_backup
 };
 
 if [ "$(type -t _get_comp_words_by_ref)" == "function" ]; then
