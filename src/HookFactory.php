@@ -46,8 +46,8 @@ function %%function_name%% {
 
     local cur mail_check_backup;
 
-    mail_check_backup=$MAILCHECK
-    MAILCHECK=-1
+    mail_check_backup=$MAILCHECK;
+    MAILCHECK=-1;
 
     _get_comp_words_by_ref -n : cur;
 
@@ -67,7 +67,7 @@ function %%function_name%% {
 
     __ltrim_colon_completions "$cur";
 
-    MAILCHECK=mail_check_backup
+    MAILCHECK=mail_check_backup;
 };
 
 if [ "$(type -t _get_comp_words_by_ref)" == "function" ]; then
