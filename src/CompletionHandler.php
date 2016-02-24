@@ -152,7 +152,7 @@ class CompletionHandler
     {
         $word = $this->context->getCurrentWord();
 
-        if (strpos($word, '-') === 0) {
+        if (substr($word, 0, 2) === '--') {
             $options = array();
 
             foreach ($this->getAllOptions() as $opt) {

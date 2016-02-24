@@ -196,7 +196,7 @@ class CompletionContext
     {
         $this->words = array();
         $this->wordIndex = null;
-        $cursor = 1;
+        $cursor = 0;
 
         $breaks = preg_quote($this->wordBreaks);
 
@@ -211,12 +211,14 @@ class CompletionContext
             // Determine which word the cursor is in
             $cursor += strlen($wholeMatch);
             $word = $matches[1][$index];
+            $breaks = $matches[2][$index];
 
             if ($this->wordIndex === null && $cursor >= $this->charIndex) {
                 $this->wordIndex = $index;
 
-                // Find the cursor position relative to the end of the word
-                $cursorWordOffset = $this->charIndex - ($cursor - strlen($matches[2][$index]) - 1);
+                // Find the user's cursor position relative to the end of this word
+                // The end of the word is the internal cursor minus any break characters that were captured
+                $cursorWordOffset = $this->charIndex - ($cursor - strlen($breaks));
 
                 if ($cursorWordOffset < 0) {
                     // Cursor is inside the word - truncate the word at the cursor
@@ -224,8 +226,8 @@ class CompletionContext
                     $word = substr($word, 0, strlen($word) + $cursorWordOffset);
 
                 } elseif ($cursorWordOffset > 0) {
-                    // Cursor is in the break-space after the word
-                    // Push an empty word at the cursor
+                    // Cursor is in the break-space after a word
+                    // Push an empty word at the cursor to allow completion of new terms at the cursor, ignoring words ahead
                     $this->wordIndex++;
                     $this->words[] = $word;
                     $this->words[] = '';
