@@ -124,6 +124,8 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
             'argument suggestions' => array('app completion-aware any-arg ', array('one-arg', 'two-arg')),
             'argument no suggestions' => array('app completion-aware ', array()),
             'argument suggestions + context' => array('app completion-aware any-arg one', array('one-arg', 'one-arg-context')),
+            'array argument suggestions' => array('app completion-aware any-arg one-arg array-arg1 ', array('one-arg', 'two-arg')),
+            'array argument suggestions + context' => array('app completion-aware any-arg one-arg array-arg1 one', array('one-arg', 'one-arg-context')),
             'option suggestions' => array('app completion-aware --option-with-suggestions ', array('one-opt', 'two-opt')),
             'option no suggestions' => array('app completion-aware --option-without-suggestions ', array()),
             'option suggestions + context' => array(
