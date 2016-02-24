@@ -4,6 +4,7 @@
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class CompletionAwareCommand extends Command implements CompletionAwareInterface
@@ -14,7 +15,9 @@ class CompletionAwareCommand extends Command implements CompletionAwareInterface
             ->addOption('option-with-suggestions', null, InputOption::VALUE_REQUIRED)
             ->addOption('option-without-suggestions', null, InputOption::VALUE_REQUIRED)
             ->addArgument('argument-without-suggestions')
-            ->addArgument('argument-with-suggestions');
+            ->addArgument('argument-with-suggestions')
+            ->addArgument('array-argument-with-suggestions', InputArgument::IS_ARRAY)
+        ;
     }
 
     /**
@@ -50,7 +53,7 @@ class CompletionAwareCommand extends Command implements CompletionAwareInterface
      */
     public function completeArgumentValues($argumentName, CompletionContext $context)
     {
-        if ($argumentName === 'argument-with-suggestions') {
+        if (in_array($argumentName, array('argument-with-suggestions', 'array-argument-with-suggestions'))) {
             $suggestions = array('one-arg', 'two-arg');
 
             if ('one' === $context->getCurrentWord()) {

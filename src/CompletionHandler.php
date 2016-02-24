@@ -277,23 +277,28 @@ class CompletionHandler
      */
     protected function completeForCommandArguments()
     {
-        if (strpos($this->context->getCurrentWord(), '-') !== 0) {
-            if ($this->command) {
-                $argWords = $this->mapArgumentsToWords($this->command->getNativeDefinition()->getArguments());
-                $wordIndex = $this->context->getWordIndex();
+        if (!$this->command || strpos($this->context->getCurrentWord(), '-') === 0) {
+            return false;
+        }
 
-                if (isset($argWords[$wordIndex])) {
-                    $name = $argWords[$wordIndex];
+        $definition = $this->command->getNativeDefinition();
+        $argWords = $this->mapArgumentsToWords($definition->getArguments());
+        $wordIndex = $this->context->getWordIndex();
 
-                    if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
-                        return $helper->run();
-                    }
+        if (isset($argWords[$wordIndex])) {
+            $name = $argWords[$wordIndex];
+        } elseif (!empty($argWords) && $definition->getArgument(end($argWords))->isArray()) {
+            $name = end($argWords);
+        } else {
+            return false;
+        }
 
-                    if ($this->command instanceof CompletionAwareInterface) {
-                        return $this->command->completeArgumentValues($name, $this->context);
-                    }
-                }
-            }
+        if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
+            return $helper->run();
+        }
+
+        if ($this->command instanceof CompletionAwareInterface) {
+            return $this->command->completeArgumentValues($name, $this->context);
         }
 
         return false;
