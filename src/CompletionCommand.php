@@ -56,8 +56,7 @@ END
             $alias = $input->getOption('program');
             $multiple = (bool)$input->getOption('multiple');
 
-            // When completing for multiple apps having absolute path in the alias doesn't make sense.
-            if (!$alias && $multiple) {
+            if (!$alias) {
                 $alias = basename($program);
             }
 
