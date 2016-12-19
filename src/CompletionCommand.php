@@ -54,6 +54,7 @@ END
 
             $factory = new HookFactory();
             $alias = $input->getOption('program');
+            $sudoUser = $input->getOption('sudo-user');
             $multiple = (bool)$input->getOption('multiple');
 
             if (!$alias) {
@@ -64,6 +65,7 @@ END
                 $input->getOption('shell-type') ?: $this->getShellType(),
                 $program,
                 $alias,
+                $sudoUser,
                 $multiple
             );
 
@@ -125,6 +127,13 @@ END
                 'p',
                 InputOption::VALUE_REQUIRED,
                 "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
+            ),
+            new InputOption(
+                'sudo-user',
+                'u',
+                InputOption::VALUE_REQUIRED,
+                'User that should trigger completion when the script is run with sudo mode',
+                ''
             ),
             new InputOption(
                 'multiple',

@@ -19,10 +19,10 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider generateHookDataProvider
      */
-    public function testBashSyntax($programPath, $programName, $multiple)
+    public function testBashSyntax($programPath, $programName, $sudoUser, $multiple)
     {
         if ($this->hasProgram('bash')) {
-            $script = $this->factory->generateHook('bash', $programPath, $programName, $multiple);
+            $script = $this->factory->generateHook('bash', $programPath, $programName, $sudoUser, $multiple);
             $this->assertSyntaxIsValid($script, 'bash -n', 'BASH hook');
         } else {
             $this->markTestSkipped("Couldn't detect BASH program to run hook syntax check");
@@ -32,10 +32,10 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider generateHookDataProvider
      */
-    public function testZshSyntax($programPath, $programName, $multiple)
+    public function testZshSyntax($programPath, $programName, $sudoUser, $multiple)
     {
         if ($this->hasProgram('zsh')) {
-            $script = $this->factory->generateHook('zsh', $programPath, $programName, $multiple);
+            $script = $this->factory->generateHook('zsh', $programPath, $programName, $sudoUser, $multiple);
             $this->assertSyntaxIsValid($script, 'zsh -n', 'ZSH hook');
         } else {
             $this->markTestSkipped("Couldn't detect ZSH program to run hook syntax check");
@@ -45,11 +45,12 @@ class HookFactoryTest extends \PHPUnit_Framework_TestCase
     public function generateHookDataProvider()
     {
         return array(
-            array('/path/to/myprogram', null, false),
-            array('/path/to/myprogram', null, true),
-            array('/path/to/myprogram', 'myprogram', false),
-            array('/path/to/myprogram', 'myprogram', true),
-            array('/path/to/my-program', 'my-program', false)
+            array('/path/to/myprogram', null, '', false),
+            array('/path/to/myprogram', null, '', true),
+            array('/path/to/myprogram', 'myprogram', '', false),
+            array('/path/to/myprogram', 'myprogram', '', true),
+            array('/path/to/my-program', 'my-program', '', false),
+            array('/path/to/my-program', 'my-program', 'www-data', false),
         );
     }
 

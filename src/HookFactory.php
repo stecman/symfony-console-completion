@@ -41,7 +41,11 @@ function %%function_name%% {
 
     local RESULT STATUS;
 
-    RESULT="$(%%completion_command%% </dev/null)";
+    if [ "%%sudo_user%%" ]; then
+        RESULT="$(sudo -E -u %%sudo_user%% %%completion_command%% </dev/null)";
+    else
+        RESULT="$(%%completion_command%% </dev/null)";
+    fi;
     STATUS=$?;
 
     local cur mail_check_backup;
@@ -87,7 +91,11 @@ function %%function_name%% {
     (( CMDLINE_CURSOR_INDEX = ${#${(j. .)words[1,CURRENT]}} ))
 
     local RESULT STATUS
-    RESULT=("${(@f)$( %%completion_command%% )}")
+    if [ "%%sudo_user%%" ]; then
+        RESULT=("${(@f)$( sudo -E -u %%sudo_user%% %%completion_command%% )}")
+    else
+        RESULT=("${(@f)$( %%completion_command%% )}")
+    fi;
     STATUS=$?;
 
     # Check if shell provided path completion is requested
@@ -125,11 +133,12 @@ END
      * @param string $type - a key from self::$hooks
      * @param string $programPath
      * @param string $programName
+     * @param string $sudoUser
      * @param bool   $multiple
      *
      * @return string
      */
-    public function generateHook($type, $programPath, $programName = null, $multiple = false)
+    public function generateHook($type, $programPath, $programName = null, $sudoUser = '', $multiple = false)
     {
         if (!isset(self::$hooks[$type])) {
             throw new \RuntimeException(sprintf(
@@ -151,12 +160,14 @@ END
         return str_replace(
             array(
                 '%%function_name%%',
+                '%%sudo_user%%',
                 '%%program_name%%',
                 '%%program_path%%',
                 '%%completion_command%%',
             ),
             array(
                 $this->generateFunctionName($programPath, $programName),
+                $sudoUser,
                 $programName,
                 $programPath,
                 $completionCommand
