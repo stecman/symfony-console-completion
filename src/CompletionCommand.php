@@ -22,6 +22,7 @@ class CompletionCommand extends SymfonyCommand
             ->setName('_completion')
             ->setDefinition($this->createDefinition())
             ->setDescription('BASH completion hook.')
+            ->setHidden(true)
             ->setHelp(<<<END
 To enable BASH completion, run:
 
