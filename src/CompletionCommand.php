@@ -35,7 +35,7 @@ END
             );
 
         // setHidden() method was not available before Symfony 3.2
-        if (method_exists($this, "setHidden")) {
+        if (method_exists($this, 'setHidden')) {
             $this->setHidden(true);
         }
     }

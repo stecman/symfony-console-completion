@@ -43,7 +43,7 @@ class CompletionHandler
     {
         $this->application = $application;
         $this->context = $context;
-        $this->commandsHidable = method_exists(Command::class, "isHidden");
+        $this->commandsHidable = method_exists(Command::class, 'isHidden');
 
         $this->addHandler(
             new Completion(
