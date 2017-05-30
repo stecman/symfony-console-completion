@@ -440,12 +440,12 @@ class CompletionHandler
     {
         $commands = array();
 
-        foreach ($this->application->all() as $command) {
+        foreach ($this->application->all() as $name => $command) {
             if ($command->isHidden()) {
                 continue;
             }
 
-            $commands[] = $command->getName();
+            $commands[] = $name;
         }
 
         return $commands;
