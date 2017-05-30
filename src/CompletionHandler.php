@@ -34,10 +34,16 @@ class CompletionHandler
      */
     protected $helpers = array();
 
+    /**
+     * @var bool
+     */
+    protected $commandsHidable;
+
     public function __construct(Application $application, CompletionContext $context = null)
     {
         $this->application = $application;
         $this->context = $context;
+        $this->commandsHidable = method_exists(Command::class, "isHidden");
 
         $this->addHandler(
             new Completion(
@@ -441,7 +447,7 @@ class CompletionHandler
         $commands = array();
 
         foreach ($this->application->all() as $name => $command) {
-            if ($command->isHidden()) {
+            if (($this->commandsHidable and $command->isHidden()) or (!$this->commandsHidable and $name === '_completion')) {
                 continue;
             }
 
