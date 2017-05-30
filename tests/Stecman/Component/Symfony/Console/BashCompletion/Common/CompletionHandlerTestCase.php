@@ -33,7 +33,7 @@ abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
             new \TestSymfonyStyleCommand()
         ));
 
-        if (method_exists("\HiddenCommand", "setHidden")) {
+        if (method_exists('\HiddenCommand', 'setHidden')) {
             $this->application->add(new \HiddenCommand());
         }
     }
