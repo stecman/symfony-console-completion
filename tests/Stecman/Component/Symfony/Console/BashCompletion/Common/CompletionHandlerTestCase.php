@@ -29,10 +29,13 @@ abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
         $this->application = new Application('Base application');
         $this->application->addCommands(array(
             new \CompletionAwareCommand(),
-            new \HiddenCommand(),
             new \TestBasicCommand(),
             new \TestSymfonyStyleCommand()
         ));
+
+        if (method_exists("\HiddenCommand", "setHidden")) {
+            $this->application->add(new \HiddenCommand());
+        }
     }
 
     /**
