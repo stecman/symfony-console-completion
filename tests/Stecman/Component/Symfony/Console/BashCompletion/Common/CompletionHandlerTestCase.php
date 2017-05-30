@@ -19,6 +19,7 @@ abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         require_once __DIR__ . '/../Fixtures/CompletionAwareCommand.php';
+        require_once __DIR__ . '/../Fixtures/HiddenCommand.php';
         require_once __DIR__ . '/../Fixtures/TestBasicCommand.php';
         require_once __DIR__ . '/../Fixtures/TestSymfonyStyleCommand.php';
     }
@@ -28,6 +29,7 @@ abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
         $this->application = new Application('Base application');
         $this->application->addCommands(array(
             new \CompletionAwareCommand(),
+            new \HiddenCommand(),
             new \TestBasicCommand(),
             new \TestSymfonyStyleCommand()
         ));

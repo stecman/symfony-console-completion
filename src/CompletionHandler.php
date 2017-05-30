@@ -39,12 +39,22 @@ class CompletionHandler
         $this->application = $application;
         $this->context = $context;
 
+        $helpCommands = array();
+
+        foreach ($application->all() as $command) {
+            if ($command->isHidden()) {
+                continue;
+            }
+
+            $helpCommands[] = $command->getName();
+        }
+
         $this->addHandler(
             new Completion(
                 'help',
                 'command_name',
                 Completion::TYPE_ARGUMENT,
-                array_keys($application->all())
+                $helpCommands
             )
         );
 
@@ -257,10 +267,18 @@ class CompletionHandler
     {
         if (!$this->command || (count($this->context->getWords()) == 2 && $this->context->getWordIndex() == 1)) {
             $commands = $this->application->all();
-            $names = array_keys($commands);
+            $names = array();
 
-            if ($key = array_search('_completion', $names)) {
-                unset($names[$key]);
+            foreach ($commands as $name => $command) {
+                if ($command->isHidden()) {
+                    continue;
+                }
+
+                if ($name === '_completion') {
+                    continue;
+                }
+
+                $names[] = $name;
             }
 
             return $names;
