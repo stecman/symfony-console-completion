@@ -446,12 +446,22 @@ class CompletionHandler
     {
         $commands = array();
 
-        foreach ($this->application->all() as $name => $command) {
-            if (($this->commandsHidable and $command->isHidden()) or (!$this->commandsHidable and $name === '_completion')) {
-                continue;
-            }
+        if ($this->commandsHidable) {
+            foreach ($this->application->all() as $name => $command) {
+                if ($command->isHidden()) {
+                    continue;
+                }
 
-            $commands[] = $name;
+                $commands[] = $name;
+            }
+        } else {
+            foreach ($this->application->all() as $name => $command) {
+                if ($name === '_completion') {
+                    continue;
+                }
+
+                $commands[] = $name;
+            }
         }
 
         return $commands;
