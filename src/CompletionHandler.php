@@ -34,16 +34,10 @@ class CompletionHandler
      */
     protected $helpers = array();
 
-    /**
-     * @var bool
-     */
-    protected $commandsHidable;
-
     public function __construct(Application $application, CompletionContext $context = null)
     {
         $this->application = $application;
         $this->context = $context;
-        $this->commandsHidable = method_exists('\Symfony\Component\Console\Command\Command', 'isHidden');
 
         $this->addHandler(
             new Completion(
@@ -446,7 +440,7 @@ class CompletionHandler
     {
         $commands = array();
 
-        if ($this->commandsHidable) {
+        if (method_exists('\Symfony\Component\Console\Command\Command', 'isHidden')) {
             foreach ($this->application->all() as $name => $command) {
                 if ($command->isHidden()) {
                     continue;
