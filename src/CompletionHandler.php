@@ -44,7 +44,7 @@ class CompletionHandler
                 'help',
                 'command_name',
                 Completion::TYPE_ARGUMENT,
-                array_keys($application->all())
+                $this->getCommandNames()
             )
         );
 
@@ -256,14 +256,7 @@ class CompletionHandler
     protected function completeForCommandName()
     {
         if (!$this->command || (count($this->context->getWords()) == 2 && $this->context->getWordIndex() == 1)) {
-            $commands = $this->application->all();
-            $names = array_keys($commands);
-
-            if ($key = array_search('_completion', $names)) {
-                unset($names[$key]);
-            }
-
-            return $names;
+            return $this->getCommandNames();
         }
 
         return false;
@@ -441,5 +434,30 @@ class CompletionHandler
             $this->command->getNativeDefinition()->getOptions(),
             $this->application->getDefinition()->getOptions()
         );
+    }
+
+    protected function getCommandNames()
+    {
+        $commands = array();
+
+        if (method_exists('\Symfony\Component\Console\Command\Command', 'isHidden')) {
+            foreach ($this->application->all() as $name => $command) {
+                if ($command->isHidden()) {
+                    continue;
+                }
+
+                $commands[] = $name;
+            }
+        } else {
+            foreach ($this->application->all() as $name => $command) {
+                if ($name === '_completion') {
+                    continue;
+                }
+
+                $commands[] = $name;
+            }
+        }
+
+        return $commands;
     }
 }
