@@ -39,6 +39,7 @@ class CompletionHandler
         $this->application = $application;
         $this->context = $context;
 
+        // Set up completions for commands that are built-into Application
         $this->addHandler(
             new Completion(
                 'help',
@@ -436,28 +437,36 @@ class CompletionHandler
         );
     }
 
+    /**
+     * Get command names available for completion
+     *
+     * Filters out hidden commands where supported.
+     *
+     * @return string[]
+     */
     protected function getCommandNames()
     {
-        $commands = array();
-
+        // Command::Hidden isn't supported before Symfony Console 3.2.0
+        // We don't complete hidden command names as these are intended to be private
         if (method_exists('\Symfony\Component\Console\Command\Command', 'isHidden')) {
-            foreach ($this->application->all() as $name => $command) {
-                if ($command->isHidden()) {
-                    continue;
-                }
+            $commands = array();
 
-                $commands[] = $name;
+            foreach ($this->application->all() as $name => $command) {
+                if (!$command->isHidden()) {
+                    $commands[] = $name;
+                }
             }
+
+            return $commands;
+
         } else {
-            foreach ($this->application->all() as $name => $command) {
-                if ($name === '_completion') {
-                    continue;
-                }
 
-                $commands[] = $name;
-            }
+            // Fallback for compatibility with Symfony Console < 3.2.0
+            // This was the behaviour prior to pull #75
+            $commands = $this->application->all();
+            unset($commands['_completion']);
+
+            return array_keys($commands);
         }
-
-        return $commands;
     }
 }
