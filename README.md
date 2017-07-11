@@ -23,7 +23,7 @@ If you don't need any custom completion behaviour, you can simply add the comple
    $ composer require stecman/symfony-console-completion
    ```
 
-2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
+2. For standalone Symfony Console applications, add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
 
   ```php
   protected function getDefaultCommands()
@@ -32,6 +32,18 @@ If you don't need any custom completion behaviour, you can simply add the comple
       $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
      //...
   }
+  ```
+  
+  For Symfony Framework applications, register the `CompletionCommand` as a service in `app/config/services.yml`:
+  
+  ```yaml
+  services:
+  #...
+      console.completion_command:
+        class: Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand
+        tags:
+            -  { name: console.command }
+  #...            
   ```
 
 3. Register completion for your application by running one of the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
