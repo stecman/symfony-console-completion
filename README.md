@@ -23,31 +23,43 @@ If you don't need any custom completion behaviour, you can simply add the comple
    $ composer require stecman/symfony-console-completion
    ```
 
-2. Add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
+2. For standalone Symfony Console applications, add an instance of `CompletionCommand` to your application's `Application::getDefaultCommands()` method:
 
-  ```php
-  protected function getDefaultCommands()
-  {
-     //...
-      $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
-     //...
-  }
-  ```
+   ```php
+   protected function getDefaultCommands()
+   {
+      //...
+       $commands[] = new \Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand();
+      //...
+   }
+   ```
+
+   For Symfony Framework applications, register the `CompletionCommand` as a service in `app/config/services.yml`:
+
+   ```yaml
+   services:
+   #...
+       console.completion_command:
+         class: Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand
+         tags:
+             -  { name: console.command }
+   #...
+   ```
 
 3. Register completion for your application by running one of the following in a terminal, replacing `[program]` with the command you use to run your application (eg. 'composer'):
 
-  ```bash
-  # BASH ~4.x, ZSH
-  source <([program] _completion --generate-hook)
+   ```bash
+   # BASH ~4.x, ZSH
+   source <([program] _completion --generate-hook)
 
-  # BASH ~3.x, ZSH
-  [program] _completion --generate-hook | source /dev/stdin
+   # BASH ~3.x, ZSH
+   [program] _completion --generate-hook | source /dev/stdin
 
-  # BASH (any version)
-  eval $([program] _completion --generate-hook)
-  ```
+   # BASH (any version)
+   eval $([program] _completion --generate-hook)
+   ```
 
-  By default this registers completion for the absolute path to you application, which will work if the program on accessible on your PATH. You can specify a program name to complete for instead using the `--program` option, which is required if you're using an alias to run the program.
+   By default this registers completion for the absolute path to you application, which will work if the program on accessible on your PATH. You can specify a program name to complete for instead using the `--program` option, which is required if you're using an alias to run the program.
 
 4. If you want the completion to apply automatically for all new shell sessions, add the command from step 3 to your shell's profile (eg. `~/.bash_profile` or `~/.zshrc`)
 
@@ -71,7 +83,7 @@ By default, no completion results will be returned for option and argument value
 class MyCommand extends Command implements CompletionAwareInterface
 {
     ...
-    
+
     public function completeOptionValues($optionName, CompletionContext $context)
     {
         if ($optionName == 'some-option') {
