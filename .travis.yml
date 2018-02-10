@@ -9,8 +9,12 @@ matrix:
     - php: 7.0
     - php: 7.1
     - php: 7.2
+    - php: nightly
     - php: hhvm
       env: COMPOSER_OPTS="--prefer-lowest"
+
+  allow_failures:
+    - php: nightly
 
 before_install:
   - sudo apt-get update -qq
