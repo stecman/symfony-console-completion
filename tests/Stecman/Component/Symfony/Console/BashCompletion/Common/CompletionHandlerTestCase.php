@@ -2,6 +2,7 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion\Tests\Common;
 
+use PHPUnit\Framework\TestCase;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionHandler;
 use Symfony\Component\Console\Application;
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Application;
 /**
  * Base test case for running CompletionHandlers
  */
-abstract class CompletionHandlerTestCase extends \PHPUnit_Framework_TestCase
+abstract class CompletionHandlerTestCase extends TestCase
 {
     /**
      * @var Application

@@ -2,10 +2,11 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\EnvironmentCompletionContext;
 
-class CompletionContextTest extends \PHPUnit_Framework_TestCase
+class CompletionContextTest extends TestCase
 {
 
     public function testWordBreakSplit()
