@@ -80,6 +80,21 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $this->assertArraySubset(array('--jazz-hands'), $this->getTerms($handler->runCompletion()));
     }
 
+    public function testCompleteOptionEqualsValue()
+    {
+        // Cursor at the "=" sign
+        $handler = $this->createHandler('app completion-aware --option-with-suggestions=');
+        $this->assertEquals(array('one-opt', 'two-opt'), $this->getTerms($handler->runCompletion()));
+
+        // Cursor at an opening quote
+        $handler = $this->createHandler('app completion-aware --option-with-suggestions="');
+        $this->assertEquals(array('one-opt', 'two-opt'), $this->getTerms($handler->runCompletion()));
+
+        // Cursor inside a quote with value
+        $handler = $this->createHandler('app completion-aware --option-with-suggestions="two');
+        $this->assertEquals(array('two-opt'), $this->getTerms($handler->runCompletion()));
+    }
+
     public function testCompleteOptionOrder()
     {
         // Completion of options should be able to happen anywhere after the command name

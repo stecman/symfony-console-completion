@@ -61,7 +61,7 @@ class CompletionContext
      *
      * @var string
      */
-    protected $wordBreaks = "'\"()= \t\n";
+    protected $wordBreaks = "= \t\n";
 
     /**
      * Set the whole contents of the command line as a string
@@ -178,12 +178,15 @@ class CompletionContext
      * This defaults to a sane value based on BASH's word break characters and shouldn't
      * need to be changed unless your completions contain the default word break characters.
      *
+     * @deprecated This is becoming an internal setting that doesn't make sense to expose publicly.
+     *
      * @see wordBreaks
      * @param string $charList - a single string containing all of the characters to break words on
      */
     public function setWordBreaks($charList)
     {
-        $this->wordBreaks = $charList;
+        // Drop quotes from break characters - strings are handled separately to word breaks now
+        $this->wordBreaks = str_replace(array('"', '\''), '', $charList);;
         $this->reset();
     }
 
@@ -194,55 +197,136 @@ class CompletionContext
      */
     protected function splitCommand()
     {
-        $this->words = array();
-        $this->wordIndex = null;
-        $cursor = 0;
+        $tokens = $this->tokenizeString($this->commandLine);
 
-        $breaks = preg_quote($this->wordBreaks);
+        foreach ($tokens as $token) {
+            if ($token['type'] != 'break') {
+                $this->words[] = $this->getTokenValue($token);
+            }
 
-        if (!preg_match_all("/([^$breaks]*)([$breaks]*)/", $this->commandLine, $matches)) {
-            return;
-        }
+            // Determine which word index the cursor is inside once we reach it's offset
+            if ($this->wordIndex === null && $this->charIndex <= $token['offsetEnd']) {
+                $this->wordIndex = count($this->words) - 1;
 
-        // Groups:
-        // 1: Word
-        // 2: Break characters
-        foreach ($matches[0] as $index => $wholeMatch) {
-            // Determine which word the cursor is in
-            $cursor += strlen($wholeMatch);
-            $word = $matches[1][$index];
-            $breaks = $matches[2][$index];
-
-            if ($this->wordIndex === null && $cursor >= $this->charIndex) {
-                $this->wordIndex = $index;
-
-                // Find the user's cursor position relative to the end of this word
-                // The end of the word is the internal cursor minus any break characters that were captured
-                $cursorWordOffset = $this->charIndex - ($cursor - strlen($breaks));
-
-                if ($cursorWordOffset < 0) {
-                    // Cursor is inside the word - truncate the word at the cursor
-                    // (This emulates normal BASH completion behaviour I've observed, though I'm not entirely sure if it's useful)
-                    $word = substr($word, 0, strlen($word) + $cursorWordOffset);
-
-                } elseif ($cursorWordOffset > 0) {
+                if ($token['type'] == 'break') {
                     // Cursor is in the break-space after a word
                     // Push an empty word at the cursor to allow completion of new terms at the cursor, ignoring words ahead
                     $this->wordIndex++;
-                    $this->words[] = $word;
                     $this->words[] = '';
                     continue;
                 }
-            }
 
-            if ($word !== '') {
-                $this->words[] = $word;
+                if ($this->charIndex < $token['offsetEnd']) {
+                    // Cursor is inside the current word - truncate the word at the cursor
+                    // (This emulates normal BASH completion behaviour I've observed, though I'm not entirely sure if it's useful)
+                    $relativeOffset = $this->charIndex - $token['offset'];
+                    $truncated = substr($token['value'], 0, $relativeOffset);
+
+                    $this->words[$this->wordIndex] = $truncated;
+                }
             }
         }
 
-        if ($this->wordIndex > count($this->words) - 1) {
-            $this->wordIndex = count($this->words) - 1;
+        // Cursor position is past the end of the command line string - consider it a new word
+        if ($this->wordIndex === null) {
+            $this->wordIndex = count($this->words);
+            $this->words[] = '';
         }
+    }
+
+    /**
+     * Return a token's value with escaping and quotes removed
+     *
+     * @see self::tokenizeString()
+     * @param array $token
+     * @return string
+     */
+    protected function getTokenValue($token)
+    {
+        $value = $token['value'];
+
+        // Remove outer quote characters (or first quote if unclosed)
+        if ($token['type'] == 'quoted') {
+            $value = preg_replace('/^(?:[\'"])(.*?)(?:[\'"])?$/', '$1', $value);
+        }
+
+        // Remove escape characters
+        $value = preg_replace('/\\\\(.)/', '$1', $value);
+
+        return $value;
+    }
+
+    /**
+     * Break a string into words, quoted strings and non-words (breaks)
+     *
+     * Returns an array of unmodified segments of $string with offset and type information.
+     *
+     * @param string $string
+     * @return array as [ [type => string, value => string, offset => int], ... ]
+     */
+    protected function tokenizeString($string)
+    {
+        // Map capture groups to returned token type
+        $typeMap = array(
+            'double_quote_string' => 'quoted',
+            'single_quote_string' => 'quoted',
+            'word' => 'word',
+            'break' => 'break',
+        );
+
+        // Escape every word break character including whitespace
+        // preg_quote won't work here as it doesn't understand the ignore whitespace flag ("x")
+        $breaks = preg_replace('/(.)/', '\\\$1', $this->wordBreaks);
+
+        $pattern = <<<"REGEX"
+            /(?:
+                (?P<double_quote_string>
+                    "(\\\\.|[^\"\\\\])*(?:"|$)
+                ) |
+                (?P<single_quote_string>
+                    '(\\\\.|[^'\\\\])*(?:'|$)
+                ) |
+                (?P<word>
+                    (?:\\\\.|[^$breaks])+
+                ) |
+                (?P<break>
+                     [$breaks]+
+                )
+            )/x
+REGEX;
+
+        $tokens = array();
+
+        if (!preg_match_all($pattern, $string, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER)) {
+            return $tokens;
+        }
+
+        foreach ($matches as $set) {
+            foreach ($set as $groupName => $match) {
+
+                // Ignore integer indices preg_match outputs (duplicates of named groups)
+                if (is_integer($groupName)) {
+                    continue;
+                }
+
+                // Skip if the offset indicates this group didn't match
+                if ($match[1] === -1) {
+                    continue;
+                }
+
+                $tokens[] = array(
+                    'type' => $typeMap[$groupName],
+                    'value' => $match[0],
+                    'offset' => $match[1],
+                    'offsetEnd' => $match[1] + strlen($match[0])
+                );
+
+                // Move to the next set (only one group should match per set)
+                continue;
+            }
+        }
+
+        return $tokens;
     }
 
     /**

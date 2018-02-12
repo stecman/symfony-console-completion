@@ -92,6 +92,44 @@ class CompletionContextTest extends TestCase
         $this->assertEquals('', $context->getCurrentWord());
     }
 
+    public function testQuotedStringWordBreaking()
+    {
+        $context = new CompletionContext();
+        $context->setCharIndex(1000);
+        $context->setCommandLine('make horse --legs=3 --name="Jeff the horse" --colour Extreme\ Blanc \'foo " bar\'');
+
+        // Ensure spaces and quotes
+        $this->assertEquals(
+            array(
+                'make',
+                'horse',
+                '--legs',
+                '3',
+                '--name',
+                'Jeff the horse',
+                '--colour',
+                'Extreme Blanc',
+                'foo " bar',
+                '',
+            ),
+            $context->getWords()
+        );
+
+        $context = new CompletionContext();
+        $context->setCommandLine('console --tag=');
+
+        // Cursor after equals symbol on option argument
+        $context->setCharIndex(14);
+        $this->assertEquals(
+            array(
+                'console',
+                '--tag',
+                ''
+            ),
+            $context->getWords()
+        );
+    }
+
     public function testConfigureFromEnvironment()
     {
         putenv("CMDLINE_CONTENTS=beam up li");
