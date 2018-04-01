@@ -59,7 +59,7 @@ If you don't need any custom completion behaviour, you can simply add the comple
    eval $([program] _completion --generate-hook)
    ```
 
-   By default this registers completion for the absolute path to you application, which will work if the program on accessible on your PATH. You can specify a program name to complete for instead using the `--program` option, which is required if you're using an alias to run the program.
+   By default this registers completion for the absolute path to you application, which will work if the program is accessible on your PATH. You can specify a program name to complete for instead using the `--program` option, which is required if you're using an alias to run the program.
 
 4. If you want the completion to apply automatically for all new shell sessions, add the command from step 3 to your shell's profile (eg. `~/.bash_profile` or `~/.zshrc`)
 
@@ -206,7 +206,7 @@ To have a completion run for both options and arguments matching the specified n
 $handler->addHandler(
     new Completion(
         Completion::ALL_COMMANDS,
-        'pacakge',
+        'package',
         Completion::ALL_TYPES,
         function() {
             // ...
