@@ -10,7 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CompletionCommand extends SymfonyCommand
 {
-
     /**
      * @var CompletionHandler
      */
@@ -47,6 +46,52 @@ END
     public function getNativeDefinition()
     {
         return $this->createDefinition();
+    }
+
+    /**
+     * Ignore user-defined global options
+     *
+     * Any global options defined by user-code are meaningless to this command.
+     * Options outside of the core defaults are ignored to avoid name and shortcut conflicts.
+     */
+    public function mergeApplicationDefinition($mergeArgs = true)
+    {
+        // Get current application options
+        $appDefinition = $this->getApplication()->getDefinition();
+        $originalOptions = $appDefinition->getOptions();
+
+        // Temporarily replace application options with a filtered list
+        $appDefinition->setOptions(
+            $this->filterApplicationOptions($originalOptions)
+        );
+
+        parent::mergeApplicationDefinition($mergeArgs);
+
+        // Restore original application options
+        $appDefinition->setOptions($originalOptions);
+    }
+
+    /**
+     * Reduce the passed list of options to the core defaults (if they exist)
+     *
+     * @param InputOption[] $appOptions
+     * @return InputOption[]
+     */
+    protected function filterApplicationOptions(array $appOptions)
+    {
+        return array_filter($appOptions, function(InputOption $option) {
+            static $coreOptions = array(
+                'help' => true,
+                'quiet' => true,
+                'verbose' => true,
+                'version' => true,
+                'ansi' => true,
+                'no-ansi' => true,
+                'no-interaction' => true,
+            );
+
+            return isset($coreOptions[$option->getName()]);
+        });
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
