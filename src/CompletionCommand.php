@@ -122,19 +122,19 @@ END
         return new InputDefinition(array(
             new InputOption(
                 'generate-hook',
-                'g',
+                null,
                 InputOption::VALUE_NONE,
                 'Generate BASH code that sets up completion for this application.'
             ),
             new InputOption(
                 'program',
-                'p',
+                null,
                 InputOption::VALUE_REQUIRED,
                 "Program name that should trigger completion\n<comment>(defaults to the absolute application path)</comment>."
             ),
             new InputOption(
                 'multiple',
-                'm',
+                null,
                 InputOption::VALUE_NONE,
                 "Generated hook can be used for multiple applications."
             ),
