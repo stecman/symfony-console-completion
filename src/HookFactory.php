@@ -41,6 +41,9 @@ function %%function_name%% {
 
     local RESULT STATUS;
 
+    # Force splitting by newline instead of default delimiters
+    local IFS=$'\n'
+
     RESULT="$(%%completion_command%% </dev/null)";
     STATUS=$?;
 
@@ -64,6 +67,11 @@ function %%function_name%% {
     fi;
 
     COMPREPLY=(`compgen -W "$RESULT" -- $cur`);
+
+    # Escape any spaces in results if the current word doesn't begin with a quote
+    if [[ ! -z $COMPREPLY  ]] && [[ ! $cur =~ ^[\'\"] ]]; then
+        COMPREPLY=($(printf '%q\n' "${COMPREPLY[@]}"));
+    fi;
 
     __ltrim_colon_completions "$cur";
 
