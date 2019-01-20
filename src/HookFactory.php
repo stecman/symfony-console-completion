@@ -33,16 +33,16 @@ function %%function_name%% {
 
     # Copy BASH's completion variables to the ones the completion command expects
     # These line up exactly as the library was originally designed for BASH
-    local CMDLINE_CONTENTS="$COMP_LINE"
-    local CMDLINE_CURSOR_INDEX="$COMP_POINT"
+    local CMDLINE_CONTENTS="$COMP_LINE";
+    local CMDLINE_CURSOR_INDEX="$COMP_POINT";
     local CMDLINE_WORDBREAKS="$COMP_WORDBREAKS";
 
-    export CMDLINE_CONTENTS CMDLINE_CURSOR_INDEX CMDLINE_WORDBREAKS
+    export CMDLINE_CONTENTS CMDLINE_CURSOR_INDEX CMDLINE_WORDBREAKS;
 
     local RESULT STATUS;
 
     # Force splitting by newline instead of default delimiters
-    local IFS=$'\n'
+    local IFS=$'\n';
 
     RESULT="$(%%completion_command%% </dev/null)";
     STATUS=$?;
@@ -78,19 +78,19 @@ if [ "$(type -t _get_comp_words_by_ref)" == "function" ]; then
 else
     >&2 echo "Completion was not registered for %%program_name%%:";
     >&2 echo "The 'bash-completion' package is required but doesn't appear to be installed.";
-fi
+fi;
 END
 
         // ZSH Hook
         , 'zsh' => <<<'END'
 # ZSH completion for %%program_path%%
 function %%function_name%% {
-    local -x CMDLINE_CONTENTS="$words"
-    local -x CMDLINE_CURSOR_INDEX
-    (( CMDLINE_CURSOR_INDEX = ${#${(j. .)words[1,CURRENT]}} ))
+    local -x CMDLINE_CONTENTS="$words";
+    local -x CMDLINE_CURSOR_INDEX;
+    (( CMDLINE_CURSOR_INDEX = ${#${(j. .)words[1,CURRENT]}} ));
 
-    local RESULT STATUS
-    RESULT=("${(@f)$( %%completion_command%% )}")
+    local RESULT STATUS;
+    RESULT=("${(@f)$( %%completion_command%% )}");
     STATUS=$?;
 
     # Check if shell provided path completion is requested
@@ -105,7 +105,7 @@ function %%function_name%% {
         return $?;
     fi;
 
-    compadd -- $RESULT
+    compadd -- $RESULT;
 };
 
 compdef %%function_name%% "%%program_name%%";
