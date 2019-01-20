@@ -32,16 +32,26 @@ class CompletionContext
     protected $charIndex = 0;
 
     /**
-     * An array containing the individual words in the current command line.
+     * An array of the individual words in the current command line.
      *
      * This is not set until $this->splitCommand() is called, when it is populated by
      * $commandLine exploded by $wordBreaks
      *
      * Bash equivalent: COMP_WORDS
      *
-     * @var array|null
+     * @var string[]|null
      */
     protected $words = null;
+
+    /**
+     * Words from the currently command-line before quotes and escaping is processed
+     *
+     * This is indexed the same as $this->words, but in their raw input terms are in their input form, including
+     * quotes and escaping.
+     *
+     * @var string[]|null
+     */
+    protected $rawWords = null;
 
     /**
      * The index in $this->words containing the word at the current cursor position.
@@ -102,6 +112,22 @@ class CompletionContext
     }
 
     /**
+     * Return the unprocessed string for the word under the cursor
+     *
+     * This preserves any quotes and escaping that are present in the input command line.
+     *
+     * @return string
+     */
+    public function getRawCurrentWord()
+    {
+        if (isset($this->rawWords[$this->wordIndex])) {
+            return $this->rawWords[$this->wordIndex];
+        }
+
+        return '';
+    }
+
+    /**
      * Return a word by index from the command line
      *
      * @see $words, $wordBreaks
@@ -130,6 +156,22 @@ class CompletionContext
         }
 
         return $this->words;
+    }
+
+    /**
+     * Get the unprocessed/literal words from the command line
+     *
+     * This is indexed the same as getWords(), but preserves any quoting and escaping from the command line
+     *
+     * @return string[]
+     */
+    public function getRawWords()
+    {
+        if ($this->rawWords === null) {
+            $this->splitCommand();
+        }
+
+        return $this->rawWords;
     }
 
     /**
@@ -202,6 +244,7 @@ class CompletionContext
         foreach ($tokens as $token) {
             if ($token['type'] != 'break') {
                 $this->words[] = $this->getTokenValue($token);
+                $this->rawWords[] = $token['value'];
             }
 
             // Determine which word index the cursor is inside once we reach it's offset
@@ -213,16 +256,22 @@ class CompletionContext
                     // Push an empty word at the cursor to allow completion of new terms at the cursor, ignoring words ahead
                     $this->wordIndex++;
                     $this->words[] = '';
+                    $this->rawWords[] = '';
                     continue;
                 }
 
                 if ($this->charIndex < $token['offsetEnd']) {
-                    // Cursor is inside the current word - truncate the word at the cursor
-                    // (This emulates normal BASH completion behaviour I've observed, though I'm not entirely sure if it's useful)
-                    $relativeOffset = $this->charIndex - $token['offset'];
-                    $truncated = substr($token['value'], 0, $relativeOffset);
+                    // Cursor is inside the current word - truncate the word at the cursor to complete on
+                    // This emulates BASH completion's behaviour with COMP_CWORD
 
-                    $this->words[$this->wordIndex] = $truncated;
+                    // Create a copy of the token with its value truncated
+                    $truncatedToken = $token;
+                    $relativeOffset = $this->charIndex - $token['offset'];
+                    $truncatedToken['value'] = substr($token['value'], 0, $relativeOffset);
+
+                    // Replace the current word with the truncated value
+                    $this->words[$this->wordIndex] = $this->getTokenValue($truncatedToken);
+                    $this->rawWords[$this->wordIndex] = $truncatedToken['value'];
                 }
             }
         }
@@ -231,6 +280,7 @@ class CompletionContext
         if ($this->wordIndex === null) {
             $this->wordIndex = count($this->words);
             $this->words[] = '';
+            $this->rawWords[] = '';
         }
     }
 

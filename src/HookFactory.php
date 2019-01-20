@@ -68,11 +68,6 @@ function %%function_name%% {
 
     COMPREPLY=(`compgen -W "$RESULT" -- $cur`);
 
-    # Escape any spaces in results if the current word doesn't begin with a quote
-    if [[ ! -z $COMPREPLY  ]] && [[ ! $cur =~ ^[\'\"] ]]; then
-        COMPREPLY=($(printf '%q\n' "${COMPREPLY[@]}"));
-    fi;
-
     __ltrim_colon_completions "$cur";
 
     MAILCHECK=mail_check_backup;
@@ -155,6 +150,9 @@ END
         } else {
             $completionCommand = $programPath . ' _completion';
         }
+
+        // Pass shell type during completion so output can be encoded if the shell requires it
+        $completionCommand .= " --shell-type $type";
 
         return str_replace(
             array(
