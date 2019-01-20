@@ -57,7 +57,8 @@ function %%function_name%% {
     # Check if shell provided path completion is requested
     # @see Completion\ShellPathCompletion
     if [ $STATUS -eq 200 ]; then
-        _filedir;
+        # Turn file/dir completion on temporarily and give control back to BASH
+        compopt -o default;
         return 0;
 
     # Bail out if PHP didn't exit cleanly
