@@ -121,7 +121,54 @@ END
             $output->write($hook, true);
         } else {
             $handler->setContext(new EnvironmentCompletionContext());
-            $output->write($this->runCompletion(), true);
+
+            // Get completion results
+            $results = $this->runCompletion();
+
+            // Escape results for the current shell
+            $shellType = $input->getOption('shell-type') ?: $this->getShellType();
+
+            foreach ($results as &$result) {
+                $result = $this->escapeForShell($result, $shellType);
+            }
+
+            $output->write($results, true);
+        }
+    }
+
+    /**
+     * Escape each completion result for the specified shell
+     *
+     * @param string $result - Completion results that should appear in the shell
+     * @param string $shellType - Valid shell type from HookFactory
+     * @return string
+     */
+    protected function escapeForShell($result, $shellType)
+    {
+        switch ($shellType) {
+            // BASH requires special escaping for multi-word and special character results
+            // This emulates registering completion with`-o filenames`, without side-effects like dir name slashes
+            case 'bash':
+                $context = $this->handler->getContext();
+                $wordStart = substr($context->getRawCurrentWord(), 0, 1);
+
+                if ($wordStart == "'") {
+                    // If the current word is single-quoted, escape any single quotes in the result
+                    $result = str_replace("'", "\\'", $result);
+                } else if ($wordStart == '"') {
+                    // If the current word is double-quoted, escape any double quotes in the result
+                    $result = str_replace('"', '\\"', $result);
+                } else {
+                    // Otherwise assume the string is unquoted and word breaks should be escaped
+                    $result = preg_replace('/([\s\'"\\\\])/', '\\\\$1', $result);
+                }
+
+                // Escape output to prevent special characters being lost when passing results to compgen
+                return escapeshellarg($result);
+
+            // No transformation by default
+            default:
+                return $result;
         }
     }
 
