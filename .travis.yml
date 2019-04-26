@@ -11,10 +11,12 @@ matrix:
     - php: 7.2
     - php: nightly
     - php: hhvm
+    - php: hhvm-3.3
       env: COMPOSER_OPTS="--prefer-lowest"
 
   allow_failures:
     - php: nightly
+    - php: hhvm
 
 before_install:
   - sudo apt-get update -qq
