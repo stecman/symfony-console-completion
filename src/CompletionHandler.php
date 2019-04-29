@@ -34,6 +34,12 @@ class CompletionHandler
      */
     protected $helpers = array();
 
+    /**
+     * Index the command name was detected at
+     * @var int
+     */
+    private $commandWordIndex;
+
     public function __construct(Application $application, CompletionContext $context = null)
     {
         $this->application = $application;
@@ -100,13 +106,8 @@ class CompletionHandler
             throw new \RuntimeException('A CompletionContext must be set before requesting completion.');
         }
 
-        $cmdName = $this->getInput()->getFirstArgument();
-
-        try {
-            $this->command = $this->application->find($cmdName);
-        } catch (\InvalidArgumentException $e) {
-            // Exception thrown, when multiple or none commands are found.
-        }
+        // Set the command to query options and arugments from
+        $this->command = $this->detectCommand();
 
         $process = array(
             'completeForOptionValues',
@@ -131,6 +132,9 @@ class CompletionHandler
 
     /**
      * Get an InputInterface representation of the completion context
+     *
+     * @deprecated Incorrectly uses the ArrayInput API and is no longer needed.
+     *             This will be removed in the next major version.
      *
      * @return ArrayInput
      */
@@ -256,7 +260,7 @@ class CompletionHandler
      */
     protected function completeForCommandName()
     {
-        if (!$this->command || (count($this->context->getWords()) == 2 && $this->context->getWordIndex() == 1)) {
+        if (!$this->command || $this->context->getWordIndex() == $this->commandWordIndex) {
             return $this->getCommandNames();
         }
 
@@ -362,7 +366,8 @@ class CompletionHandler
 
         foreach ($this->context->getWords() as $wordIndex => $word) {
             // Skip program name, command name, options, and option values
-            if ($wordIndex < 2
+            if ($wordIndex == 0
+                || $wordIndex === $this->commandWordIndex
                 || ($word && '-' === $word[0])
                 || in_array($previousWord, $optionsWithArgs)) {
                 $previousWord = $word;
@@ -468,5 +473,45 @@ class CompletionHandler
 
             return array_keys($commands);
         }
+    }
+
+    /**
+     * Find the current command name in the command-line
+     *
+     * Note this only cares about flag-type options. Options with values cannot
+     * appear before a command name in Symfony Console application.
+     *
+     * @return Command|null
+     */
+    private function detectCommand()
+    {
+        // Always skip the first word (program name)
+        $skipNext = true;
+
+        foreach ($this->context->getWords() as $index => $word) {
+
+            // Skip word if flagged
+            if ($skipNext) {
+                $skipNext = false;
+                continue;
+            }
+
+            // Skip empty words and words that look like options
+            if (strlen($word) == 0 || $word[0] === '-') {
+                continue;
+            }
+
+            // Return the first unambiguous match to argument-like words
+            try {
+                $cmd = $this->application->find($word);
+                $this->commandWordIndex = $index;
+                return $cmd;
+            } catch (\InvalidArgumentException $e) {
+                // Exception thrown, when multiple or no commands are found.
+            }
+        }
+
+        // No command found
+        return null;
     }
 }

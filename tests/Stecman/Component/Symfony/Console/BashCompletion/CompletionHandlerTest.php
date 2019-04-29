@@ -68,6 +68,17 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $this->assertEquals(array('-j'), $this->getTerms($handler->runCompletion()));
     }
 
+    public function testCompleteOptionShortcutFirst()
+    {
+        // Check command options complete
+        $handler = $this->createHandler('app -v wave --');
+        $this->assertArraySubset(array('--vigorous', '--jazz-hands'), $this->getTerms($handler->runCompletion()));
+
+        // Check unambiguous command name still completes
+        $handler = $this->createHandler('app --quiet wav');
+        $this->assertEquals(array('wave'), $this->getTerms($handler->runCompletion()));
+    }
+
     public function testCompleteDoubleDash()
     {
         $handler = $this->createHandler('app wave --');
