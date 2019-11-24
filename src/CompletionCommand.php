@@ -134,6 +134,8 @@ END
 
             $output->write($results, true);
         }
+
+        return 0;
     }
 
     /**
