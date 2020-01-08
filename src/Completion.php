@@ -1,9 +1,9 @@
 <?php
 
-
 namespace Stecman\Component\Symfony\Console\BashCompletion;
 
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResult;
 
 class Completion implements CompletionInterface
 {
@@ -57,7 +57,7 @@ class Completion implements CompletionInterface
      * @param string $commandName
      * @param string $targetName
      * @param string $type
-     * @param array|callable $completion
+     * @param array|\Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResultInterface|callable $completion
      */
     public function __construct($commandName, $targetName, $type, $completion)
     {
@@ -70,15 +70,15 @@ class Completion implements CompletionInterface
     /**
      * Return the stored completion, or the results returned from the completion callback
      *
-     * @return array
+     * @return \Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResultInterface
      */
     public function run()
     {
         if ($this->isCallable()) {
-            return call_user_func($this->completion);
+            return new CompletionResult(call_user_func($this->completion));
         }
 
-        return $this->completion;
+        return new CompletionResult($this->completion);
     }
 
     /**

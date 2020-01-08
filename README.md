@@ -198,6 +198,25 @@ $handler->addHandler(
 );
 ```
 
+##### Option descriptions (zsh)
+
+You can add custom descriptions for options by returning a `DescriptiveCompletion`:
+
+```php
+$handler->addHandler(
+    new DescriptiveCompletion(
+        Completion::ALL_COMMANDS,
+        'weather',
+        Completion::TYPE_ARGUMENT,
+        [
+            'gale' => 'winds exceeding 34 kts',
+            'storm' => 'winds exceeding 48 kts',
+            'hurricane' => 'winds exceeding 64 kts'
+        ]
+    )
+);
+```
+
 ##### Completing the for both arguments and options
 
 To have a completion run for both options and arguments matching the specified name, you can use the type `Completion::ALL_TYPES`. Combining this with `Completion::ALL_COMMANDS` and consistent option/argument naming throughout your application, it's easy to share completion behaviour between commands, options and arguments:

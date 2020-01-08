@@ -123,16 +123,13 @@ END
             $handler->setContext(new EnvironmentCompletionContext());
 
             // Get completion results
-            $results = $this->runCompletion();
+            $this->configureCompletion($handler);
+            $results = $this->handler->runCompletion();
 
             // Escape results for the current shell
             $shellType = $input->getOption('shell-type') ?: $this->getShellType();
 
-            foreach ($results as &$result) {
-                $result = $this->escapeForShell($result, $shellType);
-            }
-
-            $output->write($results, true);
+            return $this->writeForShell($results, $shellType, $output);
         }
 
         return 0;
@@ -141,56 +138,71 @@ END
     /**
      * Escape each completion result for the specified shell
      *
-     * @param string $result - Completion results that should appear in the shell
+     * @param Completion\CompletionResultInterface $result - Completion results that should appear in the shell
      * @param string $shellType - Valid shell type from HookFactory
-     * @return string
+     * @param OutputInterface $output
+     * @return int
      */
-    protected function escapeForShell($result, $shellType)
+    protected function writeForShell($result, $shellType, $output)
     {
+        $desc = $result->isDescriptive();
+        $values = $result->getValues();
         switch ($shellType) {
             // BASH requires special escaping for multi-word and special character results
             // This emulates registering completion with`-o filenames`, without side-effects like dir name slashes
             case 'bash':
-                $context = $this->handler->getContext();
-                $wordStart = substr($context->getRawCurrentWord(), 0, 1);
-
-                if ($wordStart == "'") {
-                    // If the current word is single-quoted, escape any single quotes in the result
-                    $result = str_replace("'", "\\'", $result);
-                } else if ($wordStart == '"') {
-                    // If the current word is double-quoted, escape any double quotes in the result
-                    $result = str_replace('"', '\\"', $result);
-                } else {
-                    // Otherwise assume the string is unquoted and word breaks should be escaped
-                    $result = preg_replace('/([\s\'"\\\\])/', '\\\\$1', $result);
+                if ($desc) {
+                    // BASH does not support autocompletion descriptions, so we just want the actual suggestions
+                    $values = array_keys($values);
                 }
+                foreach ($values as &$value) {
+                    $context = $this->handler->getContext();
+                    $wordStart = substr($context->getRawCurrentWord(), 0, 1);
 
-                // Escape output to prevent special characters being lost when passing results to compgen
-                return escapeshellarg($result);
+                    if ($wordStart == "'") {
+                        // If the current word is single-quoted, escape any single quotes in the result
+                        $value = str_replace("'", "\\'", $value);
+                    } else if ($wordStart == '"') {
+                        // If the current word is double-quoted, escape any double quotes in the result
+                        $value = str_replace('"', '\\"', $value);
+                    } else {
+                        // Otherwise assume the string is unquoted and word breaks should be escaped
+                        $value = preg_replace('/([\s\'"\\\\])/', '\\\\$1', $value);
+                    }
+
+                    // Escape output to prevent special characters being lost when passing results to compgen
+                    $value = escapeshellarg($value);
+                }
+                $output->write($values, true);
+
+                return 0;
+
+            case 'zsh':
+                if ($desc) {
+                    $out = array();
+                    foreach ($values as $cmd => $description) {
+                        $out[] = sprintf("'%s:%s'", $cmd, $description);
+                    }
+
+                    $output->write(sprintf("(%s)", implode(" ", $out)), true);
+                    return 100;
+                }
 
             // No transformation by default
             default:
-                return $result;
+                if ($desc) {
+                    $values = array_keys($values);
+                }
+                $output->write($values, true);
+                return 0;
         }
-    }
-
-    /**
-     * Run the completion handler and return a filtered list of results
-     *
-     * @deprecated - This will be removed in 1.0.0 in favour of CompletionCommand::configureCompletion
-     *
-     * @return string[]
-     */
-    protected function runCompletion()
-    {
-        $this->configureCompletion($this->handler);
-        return $this->handler->runCompletion();
     }
 
     /**
      * Configure the CompletionHandler instance before it is run
      *
      * @param CompletionHandler $handler
+     * @return void
      */
     protected function configureCompletion(CompletionHandler $handler)
     {

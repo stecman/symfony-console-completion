@@ -42,7 +42,7 @@ interface CompletionInterface
     /**
      * Execute the completion
      *
-     * @return string[] - an array of possible completion values
+     * @return CompletionResultInterface
      */
     public function run();
 }

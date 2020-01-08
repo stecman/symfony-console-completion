@@ -100,6 +100,11 @@ function %%function_name%% {
         _path_files;
         return 0;
 
+    # Allow descriptive suggestions
+    elif [ $STATUS -eq 100 ]; then
+        _describe -- "$RESULT";
+        return 0;
+
     # Bail out if PHP didn't exit cleanly
     elif [ $STATUS -ne 0 ]; then
         echo -e "$RESULT";
