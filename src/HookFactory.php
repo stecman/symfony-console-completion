@@ -102,7 +102,7 @@ function %%function_name%% {
 
     # Allow descriptive suggestions
     elif [ $STATUS -eq 100 ]; then
-        _describe -- "$RESULT";
+        _describe 'command' "$RESULT";
         return 0;
 
     # Bail out if PHP didn't exit cleanly
