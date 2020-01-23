@@ -14,7 +14,7 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $handler = $this->createHandler('app');
 
         // It's not valid to complete the application name, so this should return nothing
-        $this->assertEmpty($handler->runCompletion());
+        $this->assertEmpty($handler->runCompletion()->getValues());
     }
 
     public function testCompleteCommandNames()
@@ -29,7 +29,7 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
     public function testCompleteCommandNameNonMatch()
     {
         $handler = $this->createHandler('app br');
-        $this->assertEmpty($handler->runCompletion());
+        $this->assertEmpty($handler->runCompletion()->getValues());
     }
 
     public function testCompleteCommandNamePartialTwoMatches()
@@ -57,7 +57,7 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $handler = $this->createHandler('app wave -');
 
         // Short options are not given as suggestions
-        $this->assertEmpty($handler->runCompletion());
+        $this->assertEmpty($handler->runCompletion()->getValues());
     }
 
     public function testCompleteOptionShortcut()

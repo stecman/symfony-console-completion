@@ -59,11 +59,15 @@ abstract class CompletionHandlerTestCase extends TestCase
      * Get the list of terms from the output of CompletionHandler
      * The array index needs to be reset so that PHPUnit's array equality assertions match correctly.
      *
-     * @param string $handlerOutput
+     * @param \Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResultInterface $handlerOutput
      * @return string[]
      */
     protected function getTerms($handlerOutput)
     {
-        return array_values($handlerOutput);
+        if ($handlerOutput->isDescriptive()) {
+            return array_keys($handlerOutput->getValues());
+        } else {
+            return array_values($handlerOutput->getValues());
+        }
     }
 }

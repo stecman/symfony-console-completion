@@ -13,6 +13,8 @@ class CompletionCommandTest extends TestCase
 {
     /**
      * Ensure conflicting options names and shortcuts from the application do not break the completion command
+     *
+     * @doesNotPerformAssertions
      */
     public function testConflictingGlobalOptions()
     {

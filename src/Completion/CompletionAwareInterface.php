@@ -12,7 +12,7 @@ interface CompletionAwareInterface
      *
      * @param string $optionName
      * @param CompletionContext $context
-     * @return array
+     * @return array|CompletionResultInterface
      */
     public function completeOptionValues($optionName, CompletionContext $context);
 
@@ -21,7 +21,7 @@ interface CompletionAwareInterface
      *
      * @param string $argumentName
      * @param CompletionContext $context
-     * @return array
+     * @return array|CompletionResultInterface
      */
     public function completeArgumentValues($argumentName, CompletionContext $context);
 }

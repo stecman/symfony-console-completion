@@ -4,6 +4,9 @@ namespace Stecman\Component\Symfony\Console\BashCompletion;
 
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareInterface;
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResult;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResultInterface;
+use Stecman\Component\Symfony\Console\BashCompletion\Completion\DescriptiveCompletion;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -14,6 +17,7 @@ class CompletionHandler
 {
     /**
      * Application to complete for
+     *
      * @var \Symfony\Component\Console\Application
      */
     protected $application;
@@ -30,12 +34,14 @@ class CompletionHandler
 
     /**
      * Array of completion helpers.
+     *
      * @var CompletionInterface[]
      */
     protected $helpers = array();
 
     /**
      * Index the command name was detected at
+     *
      * @var int
      */
     private $commandWordIndex;
@@ -47,11 +53,11 @@ class CompletionHandler
 
         // Set up completions for commands that are built-into Application
         $this->addHandler(
-            new Completion(
+            new \Stecman\Component\Symfony\Console\BashCompletion\Completion\DescriptiveCompletion(
                 'help',
                 'command_name',
                 Completion::TYPE_ARGUMENT,
-                $this->getCommandNames()
+                $this->getCommands()
             )
         );
 
@@ -97,8 +103,8 @@ class CompletionHandler
     /**
      * Do the actual completion, returning an array of strings to provide to the parent shell's completion system
      *
+     * @return CompletionResultInterface
      * @throws \RuntimeException
-     * @return string[]
      */
     public function runCompletion()
     {
@@ -122,30 +128,14 @@ class CompletionHandler
             $result = $this->{$methodName}();
 
             if (false !== $result) {
-                // Return the result of the first completion mode that matches
-                return $this->filterResults((array) $result);
+                if (!$result instanceof CompletionResultInterface) {
+                    $result = new CompletionResult((array)$result);
+                }
+                return $this->filterResult($result);
             }
         }
 
-        return array();
-    }
-
-    /**
-     * Get an InputInterface representation of the completion context
-     *
-     * @deprecated Incorrectly uses the ArrayInput API and is no longer needed.
-     *             This will be removed in the next major version.
-     *
-     * @return ArrayInput
-     */
-    public function getInput()
-    {
-        // Filter the command line content to suit ArrayInput
-        $words = $this->context->getWords();
-        array_shift($words);
-        $words = array_filter($words);
-
-        return new ArrayInput($words);
+        return new CompletionResult(array());
     }
 
     /**
@@ -161,7 +151,7 @@ class CompletionHandler
             $options = array();
 
             foreach ($this->getAllOptions() as $opt) {
-                $options[] = '--'.$opt->getName();
+                $options[] = '--' . $opt->getName();
             }
 
             return $options;
@@ -256,12 +246,12 @@ class CompletionHandler
     /**
      * Attempt to complete the current word as a command name
      *
-     * @return array|false
+     * @return \Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionResultInterface|false
      */
     protected function completeForCommandName()
     {
-        if (!$this->command || $this->context->getWordIndex() == $this->commandWordIndex) {
-            return $this->getCommandNames();
+        if (!$this->command || ($this->context->getWordIndex() == $this->commandWordIndex)) {
+            return new CompletionResult($this->getCommands(), true);
         }
 
         return false;
@@ -270,8 +260,8 @@ class CompletionHandler
     /**
      * Attempt to complete the current word as a command argument value
      *
+     * @return CompletionResultInterface|array|false
      * @see Symfony\Component\Console\Input\InputArgument
-     * @return array|false
      */
     protected function completeForCommandArguments()
     {
@@ -349,7 +339,8 @@ class CompletionHandler
      * Step through the command line to determine which word positions represent which argument values
      *
      * The word indexes of argument values are found by eliminating words that are known to not be arguments (options,
-     * option values, and command names). Any word that doesn't match for elimination is assumed to be an argument value,
+     * option values, and command names). Any word that doesn't match for elimination is assumed to be an argument
+     * value,
      *
      * @param InputArgument[] $argumentDefinitions
      * @return array as [argument name => word index on command line]
@@ -413,16 +404,21 @@ class CompletionHandler
     /**
      * Filter out results that don't match the current word on the command line
      *
-     * @param string[] $array
-     * @return string[]
+     * @param CompletionResultInterface $result
+     * @return CompletionResultInterface
      */
-    protected function filterResults(array $array)
+    protected function filterResult($result)
     {
         $curWord = $this->context->getCurrentWord();
 
-        return array_filter($array, function($val) use ($curWord) {
-            return fnmatch($curWord.'*', $val);
-        });
+        $values = $result->getValues();
+        $desc = $result->isDescriptive();
+
+        $values = array_filter($values, function ($val) use ($curWord) {
+            return fnmatch($curWord . '*', $val);
+        }, $result->isDescriptive() ? ARRAY_FILTER_USE_KEY : 0);
+
+        return new CompletionResult($values, $desc);
     }
 
     /**
@@ -449,7 +445,7 @@ class CompletionHandler
      *
      * @return string[]
      */
-    protected function getCommandNames()
+    protected function getCommands()
     {
         // Command::Hidden isn't supported before Symfony Console 3.2.0
         // We don't complete hidden command names as these are intended to be private
@@ -458,7 +454,7 @@ class CompletionHandler
 
             foreach ($this->application->all() as $name => $command) {
                 if (!$command->isHidden()) {
-                    $commands[] = $name;
+                    $commands[$name] = $command->getDescription();
                 }
             }
 
