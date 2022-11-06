@@ -12,7 +12,7 @@ class HookFactoryTest extends TestCase
      */
     protected $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->factory = new HookFactory();
     }

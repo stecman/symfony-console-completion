@@ -17,7 +17,7 @@ abstract class CompletionHandlerTestCase extends TestCase
      */
     protected $application;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         require_once __DIR__ . '/../Fixtures/CompletionAwareCommand.php';
         require_once __DIR__ . '/../Fixtures/HiddenCommand.php';
@@ -25,7 +25,7 @@ abstract class CompletionHandlerTestCase extends TestCase
         require_once __DIR__ . '/../Fixtures/TestSymfonyStyleCommand.php';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->application = new Application('Base application');
         $this->application->addCommands(array(
