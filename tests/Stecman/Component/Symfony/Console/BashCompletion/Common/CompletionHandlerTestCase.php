@@ -2,6 +2,7 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion\Tests\Common;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionHandler;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Application;
  */
 abstract class CompletionHandlerTestCase extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @var Application
      */

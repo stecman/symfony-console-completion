@@ -13,7 +13,8 @@
         "symfony/console": "~6.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "dms/phpunit-arraysubset-asserts": "^0.4.0"
     },
     "autoload": {
         "psr-4": {

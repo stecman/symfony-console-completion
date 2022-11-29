@@ -56,6 +56,8 @@ class HookFactoryTest extends TestCase
 
     public function testForMissingSemiColons()
     {
+        $this->expectNotToPerformAssertions();
+
         $class = new \ReflectionClass('Stecman\Component\Symfony\Console\BashCompletion\HookFactory');
         $properties = $class->getStaticProperties();
         $hooks = $properties['hooks'];

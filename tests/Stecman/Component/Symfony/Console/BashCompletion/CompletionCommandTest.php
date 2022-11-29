@@ -16,6 +16,8 @@ class CompletionCommandTest extends TestCase
      */
     public function testConflictingGlobalOptions()
     {
+        $this->expectNotToPerformAssertions();
+
         $app = new Application('Base application');
 
         // Conflicting option shortcut
