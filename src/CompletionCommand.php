@@ -34,16 +34,13 @@ END
             );
 
         // Hide this command from listing if supported
-        // Command::setHidden() was not available before Symfony 3.2.0
-        if (method_exists($this, 'setHidden')) {
-            $this->setHidden(true);
-        }
+        $this->setHidden(true);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getNativeDefinition()
+    public function getNativeDefinition(): InputDefinition
     {
         return $this->createDefinition();
     }

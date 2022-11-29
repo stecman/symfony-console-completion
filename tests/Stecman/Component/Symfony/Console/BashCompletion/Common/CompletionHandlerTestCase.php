@@ -2,6 +2,7 @@
 
 namespace Stecman\Component\Symfony\Console\BashCompletion\Tests\Common;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionHandler;
@@ -12,12 +13,14 @@ use Symfony\Component\Console\Application;
  */
 abstract class CompletionHandlerTestCase extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @var Application
      */
     protected $application;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         require_once __DIR__ . '/../Fixtures/CompletionAwareCommand.php';
         require_once __DIR__ . '/../Fixtures/HiddenCommand.php';
@@ -25,7 +28,7 @@ abstract class CompletionHandlerTestCase extends TestCase
         require_once __DIR__ . '/../Fixtures/TestSymfonyStyleCommand.php';
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->application = new Application('Base application');
         $this->application->addCommands(array(

@@ -12,7 +12,7 @@ class HookFactoryTest extends TestCase
      */
     protected $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->factory = new HookFactory();
     }
@@ -56,6 +56,8 @@ class HookFactoryTest extends TestCase
 
     public function testForMissingSemiColons()
     {
+        $this->expectNotToPerformAssertions();
+
         $class = new \ReflectionClass('Stecman\Component\Symfony\Console\BashCompletion\HookFactory');
         $properties = $class->getStaticProperties();
         $hooks = $properties['hooks'];

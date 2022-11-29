@@ -65,6 +65,8 @@ If you don't need any custom completion behaviour, you can simply add the comple
 
 Note: The type of shell (ZSH/BASH) is automatically detected using the `SHELL` environment variable at run time. In some circumstances, you may need to explicitly specify the shell type with the `--shell-type` option.
 
+The current version supports Symfony 6 and PHP 8.x only, due to backwards compatibility breaks in Symfony 6. For older versions of Symfony and PHP, use [version 0.11.0](https://github.com/stecman/symfony-console-completion/releases/tag/0.11.0).
+
 
 ## How it works
 
