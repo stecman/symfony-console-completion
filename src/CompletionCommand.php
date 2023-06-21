@@ -51,7 +51,7 @@ END
      * Any global options defined by user-code are meaningless to this command.
      * Options outside of the core defaults are ignored to avoid name and shortcut conflicts.
      */
-    public function mergeApplicationDefinition($mergeArgs = true)
+    public function mergeApplicationDefinition($mergeArgs = true): void
     {
         // Get current application options
         $appDefinition = $this->getApplication()->getDefinition();
