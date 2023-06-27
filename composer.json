@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": ">=8.0.2",
-        "symfony/console": "~6.0"
+        "symfony/console": "~6.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
