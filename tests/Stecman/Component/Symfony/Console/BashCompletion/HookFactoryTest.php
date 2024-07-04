@@ -14,6 +14,7 @@ class HookFactoryTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->factory = new HookFactory();
     }
 
@@ -43,7 +44,7 @@ class HookFactoryTest extends TestCase
         }
     }
 
-    public function generateHookDataProvider()
+    public static function generateHookDataProvider()
     {
         return array(
             array('/path/to/myprogram', null, false),

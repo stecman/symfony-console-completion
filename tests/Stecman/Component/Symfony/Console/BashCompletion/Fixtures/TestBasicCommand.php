@@ -1,7 +1,10 @@
 <?php
 
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
 
-class TestBasicCommand extends \Symfony\Component\Console\Command\Command
+class TestBasicCommand extends Command
 {
     protected function configure()
     {
@@ -16,11 +19,11 @@ class TestBasicCommand extends \Symfony\Component\Console\Command\Command
             ->addOption(
                 'style',
                 's',
-                \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED
             )
             ->addArgument(
                 'target',
-                \Symfony\Component\Console\Input\InputArgument::REQUIRED
+                InputArgument::REQUIRED
             );
     }
 }

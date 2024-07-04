@@ -30,6 +30,7 @@ abstract class CompletionHandlerTestCase extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->application = new Application('Base application');
         $this->application->addCommands(array(
             new \CompletionAwareCommand(),
