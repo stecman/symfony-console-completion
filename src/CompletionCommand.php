@@ -15,15 +15,13 @@ class CompletionCommand extends SymfonyCommand
      */
     protected $handler;
 
-    /**
-     *  Bash completion command description.
-     */
-    protected static $defaultDescription = 'BASH completion hook.';
 
     protected function configure()
     {
         $this
             ->setName('_completion')
+            ->setDefinition($this->createDefinition())
+            ->setDescription('BASH completion hook.')
             ->setHelp(<<<END
 To enable BASH completion, run:
 
