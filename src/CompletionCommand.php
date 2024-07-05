@@ -15,7 +15,6 @@ class CompletionCommand extends SymfonyCommand
      */
     protected $handler;
 
-
     protected function configure()
     {
         $this
@@ -133,7 +132,7 @@ END
             $output->write($results, true);
         }
 
-        return (int) SymfonyCommand::SUCCESS;
+        return SymfonyCommand::SUCCESS;
     }
 
     /**
