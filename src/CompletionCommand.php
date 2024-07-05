@@ -15,6 +15,7 @@ class CompletionCommand extends SymfonyCommand
      */
     protected $handler;
 
+
     protected function configure()
     {
         $this
@@ -51,7 +52,7 @@ END
      * Any global options defined by user-code are meaningless to this command.
      * Options outside of the core defaults are ignored to avoid name and shortcut conflicts.
      */
-    public function mergeApplicationDefinition($mergeArgs = true): void
+    public function mergeApplicationDefinition(bool $mergeArgs = true): void
     {
         // Get current application options
         $appDefinition = $this->getApplication()->getDefinition();
@@ -91,7 +92,7 @@ END
         });
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->handler = new CompletionHandler($this->getApplication());
         $handler = $this->handler;
@@ -132,7 +133,7 @@ END
             $output->write($results, true);
         }
 
-        return 0;
+        return (int) SymfonyCommand::SUCCESS;
     }
 
     /**

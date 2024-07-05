@@ -143,7 +143,7 @@ class CompletionHandlerTest extends CompletionHandlerTestCase
         $this->assertSame($suggestions, $this->getTerms($handler->runCompletion()));
     }
 
-    public function completionAwareCommandDataProvider()
+    public static function completionAwareCommandDataProvider(): array
     {
         return array(
             'not complete aware command' => array('app wave --vigorous ', array()),
