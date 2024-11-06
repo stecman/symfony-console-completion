@@ -1,12 +1,11 @@
 # BASH/ZSH auto-complete for Symfony Console applications
 
-[![Build Status](https://travis-ci.org/stecman/symfony-console-completion.svg?branch=master)](https://travis-ci.org/stecman/symfony-console-completion)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/stecman/symfony-console-completion/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/stecman/symfony-console-completion/?branch=master)
 
-[![Latest Stable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/stable.png)](https://packagist.org/packages/stecman/symfony-console-completion)
-[![Total Downloads](https://poser.pugx.org/stecman/symfony-console-completion/downloads.png)](https://packagist.org/packages/stecman/symfony-console-completion)
-[![Latest Unstable Version](https://poser.pugx.org/stecman/symfony-console-completion/v/unstable.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
-[![License](https://poser.pugx.org/stecman/symfony-console-completion/license.svg)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![Latest Stable Version](https://poser.pugx.org/stecman/symfony-console-completion/v)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![Total Downloads](https://poser.pugx.org/stecman/symfony-console-completion/downloads)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![License](https://poser.pugx.org/stecman/symfony-console-completion/license)](https://packagist.org/packages/stecman/symfony-console-completion)
+[![PHP Version Require](https://poser.pugx.org/stecman/symfony-console-completion/require/php)](https://packagist.org/packages/stecman/symfony-console-completion)
 
 This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. User code can define custom completion behaviour for argument and option values.
 
