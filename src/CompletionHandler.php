@@ -40,7 +40,7 @@ class CompletionHandler
      */
     private $commandWordIndex;
 
-    public function __construct(Application $application, CompletionContext $context = null)
+    public function __construct(Application $application, ?CompletionContext $context = null)
     {
         $this->application = $application;
         $this->context = $context;

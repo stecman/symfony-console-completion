@@ -126,10 +126,10 @@ END
     /**
      * Return a completion hook for the specified shell type
      *
-     * @param string $type - a key from self::$hooks
-     * @param string $programPath
-     * @param string $programName
-     * @param bool   $multiple
+     * @param string  $type - a key from self::$hooks
+     * @param string  $programPath
+     * @param ?string $programName
+     * @param bool    $multiple
      *
      * @return string
      */

@@ -47,7 +47,7 @@ abstract class CompletionHandlerTestCase extends TestCase
      * Create a handler set up with the given commandline and cursor position
      *
      * @param $commandLine
-     * @param int $cursorIndex
+     * @param ?int $cursorIndex
      * @return CompletionHandler
      */
     protected function createHandler($commandLine, $cursorIndex = null)
