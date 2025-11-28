@@ -6,7 +6,7 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class TestBasicCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('wave')
             ->addOption(

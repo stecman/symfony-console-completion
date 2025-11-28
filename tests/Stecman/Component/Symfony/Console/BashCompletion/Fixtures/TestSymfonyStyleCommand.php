@@ -5,7 +5,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class TestSymfonyStyleCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('walk:north')
             ->addOption(

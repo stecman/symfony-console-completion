@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class CompletionAwareCommand extends Command implements CompletionAwareInterface
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('completion-aware')
             ->addOption('option-with-suggestions', null, InputOption::VALUE_REQUIRED)

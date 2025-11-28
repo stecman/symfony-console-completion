@@ -30,7 +30,12 @@ class CompletionCommandTest extends TestCase
             new InputOption('program', null, InputOption::VALUE_REQUIRED)
         );
 
-        $app->add(new CompletionCommand());
+        // Added in symfony 7.4
+        if (method_exists($app, 'addCommand')) {
+            $app->addCommand(new CompletionCommand());
+        } else {
+            $app->add(new CompletionCommand());
+        }
 
         // Check completion command doesn't throw
         $app->doRun(new StringInput('_completion -g --program foo'), new NullOutput());

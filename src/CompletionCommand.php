@@ -15,7 +15,7 @@ class CompletionCommand extends SymfonyCommand
      */
     protected $handler;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('_completion')
