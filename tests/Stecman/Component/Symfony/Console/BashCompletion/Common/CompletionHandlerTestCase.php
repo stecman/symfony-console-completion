@@ -39,7 +39,12 @@ abstract class CompletionHandlerTestCase extends TestCase
         ));
 
         if (method_exists('\HiddenCommand', 'setHidden')) {
-            $this->application->add(new \HiddenCommand());
+            // Added in symfony 7.4
+            if (method_exists($this->application, 'addCommand')) {
+                $this->application->addCommand(new \HiddenCommand());
+            } else {
+                $this->application->add(new \HiddenCommand());
+            }
         }
     }
 
