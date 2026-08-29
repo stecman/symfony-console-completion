@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class NativeCompleteCommand extends Command implements CompletionAwareInterface
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('native-complete')
             ->addOption('legacy-option', null, InputOption::VALUE_REQUIRED)

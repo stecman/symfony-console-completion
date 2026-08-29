@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class SuggestedValuesCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('suggested-values')
             ->addOption(
