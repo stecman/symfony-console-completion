@@ -74,7 +74,28 @@ The `--generate-hook` option of `CompletionCommand` generates a small shell scri
 
 ## Defining value completions
 
-By default, no completion results will be returned for option and argument values. There are two ways of defining custom completion values for values: extend `CompletionCommand`, or implement `CompletionAwareInterface`.
+By default, no completion results will be returned for option and argument values. There are three ways of defining custom completion values: use symfony/console's own `$suggestedValues` parameter, implement `CompletionAwareInterface`, or extend `CompletionCommand`.
+
+### Using symfony/console's `$suggestedValues`
+
+Since Symfony 5.4, `addArgument()` and `addOption()` accept a `$suggestedValues` parameter, and commands can override `Command::complete()`. Both are picked up automatically, so commands written against symfony/console's documented completion API complete correctly through this library too, with no extra work:
+
+```php
+class MyCommand extends Command
+{
+    protected function configure()
+    {
+        $this->addArgument('package', InputArgument::REQUIRED, 'Package', null, ['first', 'second'])
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'Format', null, function (CompletionInput $input) {
+                return $this->getFormatsMatching($input->getCompletionValue());
+            });
+    }
+}
+```
+
+Suggestions declared this way are used as a fallback: if a `CompletionInterface` handler is registered for the same option/argument, or the command implements `CompletionAwareInterface` and returns values for it, those win. This keeps existing completions working unchanged, so both APIs can be used side by side — including within a single command.
+
+Note that `Suggestion` descriptions are dropped, as this library emits plain values only.
 
 ### Implementing `CompletionAwareInterface`
 
