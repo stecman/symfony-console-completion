@@ -188,6 +188,9 @@ END
      * Configure the CompletionHandler instance before it is run
      *
      * @param CompletionHandler $handler
+     * @deprecated 0.16.0 - It is recommended to use the symfony/console native $suggestedValues parameter
+     *             on {@see \Symfony\Component\Console\Command\Command::addArgument}
+     *             and {@see \Symfony\Component\Console\Command\Command::addOption()} instead
      */
     protected function configureCompletion(CompletionHandler $handler)
     {

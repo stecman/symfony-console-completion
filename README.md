@@ -76,7 +76,7 @@ The `--generate-hook` option of `CompletionCommand` generates a small shell scri
 
 By default, no completion results will be returned for option and argument values. There are three ways of defining custom completion values: use symfony/console's own `$suggestedValues` parameter, implement `CompletionAwareInterface`, or extend `CompletionCommand`.
 
-### Using symfony/console's `$suggestedValues`
+### Using symfony/console's `$suggestedValues` (recommended)
 
 Since Symfony 5.4, `addArgument()` and `addOption()` accept a `$suggestedValues` parameter, and commands can override `Command::complete()`. Both are picked up automatically, so commands written against symfony/console's documented completion API complete correctly through this library too, with no extra work:
 
@@ -97,7 +97,7 @@ Suggestions declared this way are used as a fallback: if a `CompletionInterface`
 
 Note that `Suggestion` descriptions are dropped, as this library emits plain values only.
 
-### Implementing `CompletionAwareInterface`
+### Implementing `CompletionAwareInterface` (deprecated)
 
 `CompletionAwareInterface` allows a command to be responsible for completing its own option and argument values. When completion is run with a command name specified (eg. `myapp mycommand ...`) and the named command implements this interface, the appropriate interface method is called automatically:
 
@@ -125,7 +125,7 @@ class MyCommand extends Command implements CompletionAwareInterface
 This method of generating completions doesn't support use of `CompletionInterface` implementations at the moment, which make it easy to share completion behaviour between commands. To use this functionality, you'll need write your value completions by extending `CompletionCommand`.
 
 
-### Extending `CompletionCommand`
+### Extending `CompletionCommand` (deprecated)
 
 Argument and option value completions can also be defined by extending `CompletionCommand` and overriding the `configureCompletion` method:
 
