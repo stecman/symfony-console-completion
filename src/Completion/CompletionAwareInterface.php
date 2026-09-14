@@ -4,6 +4,11 @@ namespace Stecman\Component\Symfony\Console\BashCompletion\Completion;
 
 use Stecman\Component\Symfony\Console\BashCompletion\CompletionContext;
 
+/**
+ * @deprecated 0.16.0 - It is recommended to use the symfony/console native $suggestedValues parameter
+ *             on {@see \Symfony\Component\Console\Command\Command::addArgument}
+ *             and {@see \Symfony\Component\Console\Command\Command::addOption()} instead
+ */
 interface CompletionAwareInterface
 {
 

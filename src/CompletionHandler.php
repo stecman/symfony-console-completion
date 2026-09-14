@@ -6,6 +6,8 @@ use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionAwareI
 use Stecman\Component\Symfony\Console\BashCompletion\Completion\CompletionInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Completion\CompletionInput;
+use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -292,14 +294,18 @@ class CompletionHandler
         }
 
         if ($helper = $this->getCompletionHelper($name, Completion::TYPE_ARGUMENT)) {
-            return $helper->run();
+            return $this->withNativeFallback($helper->run(), $name, Completion::TYPE_ARGUMENT);
         }
 
         if ($this->command instanceof CompletionAwareInterface) {
-            return $this->command->completeArgumentValues($name, $this->context);
+            return $this->withNativeFallback(
+                $this->command->completeArgumentValues($name, $this->context),
+                $name,
+                Completion::TYPE_ARGUMENT
+            );
         }
 
-        return false;
+        return $this->completeUsingNativeApi($name, Completion::TYPE_ARGUMENT);
     }
 
     /**
@@ -334,15 +340,141 @@ class CompletionHandler
      */
     protected function completeOption(InputOption $option)
     {
-        if ($helper = $this->getCompletionHelper($option->getName(), Completion::TYPE_OPTION)) {
-            return $helper->run();
+        $name = $option->getName();
+
+        if ($helper = $this->getCompletionHelper($name, Completion::TYPE_OPTION)) {
+            return $this->withNativeFallback($helper->run(), $name, Completion::TYPE_OPTION);
         }
 
         if ($this->command instanceof CompletionAwareInterface) {
-            return $this->command->completeOptionValues($option->getName(), $this->context);
+            return $this->withNativeFallback(
+                $this->command->completeOptionValues($name, $this->context),
+                $name,
+                Completion::TYPE_OPTION
+            );
         }
 
-        return false;
+        return $this->completeUsingNativeApi($name, Completion::TYPE_OPTION);
+    }
+
+    /**
+     * Use symfony/console's native completion as a fallback when this library's completion produced nothing
+     *
+     * The result of this library's completion always wins, so that existing completion setups keep behaving
+     * exactly as they did. When it produced no values, the original result is still returned if the native
+     * API has nothing to offer either, to leave CompletionHandler::runCompletion's flow control untouched.
+     *
+     * @param array|false|null $result - result from a CompletionInterface or CompletionAwareInterface
+     * @param string $name - name of the option or argument being completed
+     * @param string $type - one of the Completion::TYPE_* constants
+     * @return array|false
+     */
+    protected function withNativeFallback($result, $name, $type)
+    {
+        if (!empty($result)) {
+            return $result;
+        }
+
+        $native = $this->completeUsingNativeApi($name, $type);
+
+        return $native === false ? $result : $native;
+    }
+
+    /**
+     * Complete an option or argument value using symfony/console's own completion API
+     *
+     * This picks up values declared through the $suggestedValues parameter of Command::addArgument() and
+     * Command::addOption(), as well as commands that implement Symfony's Command::complete() method.
+     *
+     * @see \Symfony\Component\Console\Command\Command::complete()
+     * @see \Symfony\Component\Console\Input\InputArgument::complete()
+     * @see \Symfony\Component\Console\Input\InputOption::complete()
+     *
+     * @param string $name - name of the option or argument being completed
+     * @param string $type - one of the Completion::TYPE_* constants
+     * @return string[]|false - false when the native API offered no suggestions
+     */
+    protected function completeUsingNativeApi($name, $type)
+    {
+        if (!$this->command) {
+            return false;
+        }
+
+        $input = $this->createCompletionInput();
+
+        if (!$input) {
+            return false;
+        }
+
+        $suggestions = new CompletionSuggestions();
+        $definition = $this->command->getDefinition();
+
+        $targetMatches = $type === Completion::TYPE_OPTION
+            ? $input->mustSuggestOptionValuesFor($name)
+            : $input->mustSuggestArgumentValuesFor($name);
+
+        try {
+            if ($targetMatches) {
+                // Symfony's reading of the command line agrees with ours, so let the command resolve the
+                // completion itself. This also covers commands that override Command::complete().
+                $this->command->complete($input, $suggestions);
+            } elseif ($type === Completion::TYPE_OPTION && $definition->hasOption($name)) {
+                // Fall back to asking the option directly, so declared values still work when Symfony's
+                // parsing of the command line differs from this library's.
+                $definition->getOption($name)->complete($input, $suggestions);
+            } elseif ($type === Completion::TYPE_ARGUMENT && $definition->hasArgument($name)) {
+                $definition->getArgument($name)->complete($input, $suggestions);
+            }
+        } catch (\Exception $e) {
+            // Never let a broken or unexpected completion definition break the user's shell
+            return false;
+        }
+
+        $values = array();
+
+        foreach ($suggestions->getValueSuggestions() as $suggestion) {
+            // Suggestion descriptions are dropped as this library only emits plain values
+            $values[] = (string) $suggestion;
+        }
+
+        return $values ? $values : false;
+    }
+
+    /**
+     * Build a symfony/console CompletionInput bound to the detected command's definition
+     *
+     * @return CompletionInput|null - null if the context can't be represented as a CompletionInput
+     */
+    protected function createCompletionInput()
+    {
+        $tokens = $this->context->getWords();
+        $currentIndex = $this->context->getWordIndex();
+
+        // CompletionInput can't deal with an empty token under the cursor: it expects the cursor to be
+        // "free" instead, which is signalled by the index being one past the end of the token list.
+        if ('' === $this->context->getCurrentWord()) {
+            $tokens = array_slice($tokens, 0, $currentIndex);
+            $currentIndex = count($tokens);
+        }
+
+        // A command has been detected, so there is always at least a program name and a command name.
+        // Bail out rather than tripping over CompletionInput's assumptions if that isn't the case.
+        if ($currentIndex < 1 || count($tokens) < 1) {
+            return null;
+        }
+
+        try {
+            $input = CompletionInput::fromTokens(array_values($tokens), $currentIndex);
+
+            // Application options and the command name argument need to be part of the definition for the
+            // token list to line up with it, as the tokens include both.
+            $this->command->mergeApplicationDefinition();
+            $input->bind($this->command->getDefinition());
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return $input;
     }
 
     /**
