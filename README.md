@@ -7,6 +7,13 @@
 [![License](https://poser.pugx.org/stecman/symfony-console-completion/license)](https://packagist.org/packages/stecman/symfony-console-completion)
 [![PHP Version Require](https://poser.pugx.org/stecman/symfony-console-completion/require/php)](https://packagist.org/packages/stecman/symfony-console-completion)
 
+> [!IMPORTANT]
+> **⭾ You should consider using Symfony Console's [native shell completion](https://symfony.com/doc/current/console.html#console-completion) instead of this library.**
+> 
+> This was written 8 years before Symfony first released their own shell completion system. Symfony's API has been stable for a while now, and the level of documentation, long-term support and maintenance the Symfony project can deliver is almost certainly better for you. We'll continue to support a smooth transition away from this library, but there's unlikely to be further development here.
+
+---
+
 This package provides automatic (tab) completion in BASH and ZSH for Symfony Console Component based applications. With zero configuration, this package allows completion of available command names and the options they provide. User code can define custom completion behaviour for argument and option values.
 
 Example of zero-config use with Composer:
