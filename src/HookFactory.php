@@ -147,9 +147,9 @@ END
         $programName = $programName ?: $programPath;
 
         if ($multiple) {
-            $completionCommand = '$1 _completion';
+            $completionCommand = '"$1" _completion';
         } else {
-            $completionCommand = $programPath . ' _completion';
+            $completionCommand = escapeshellarg($programPath) . ' _completion';
         }
 
         // Pass shell type during completion so output can be encoded if the shell requires it
